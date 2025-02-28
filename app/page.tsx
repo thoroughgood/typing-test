@@ -8,9 +8,9 @@ export default function Home() {
   const [currentIndex, setCurrentIndex] = useState<number>(0); // What word the user is on
   const [inputValue, setInputValue] = useState<string>(''); //reads what the user has typed
   const [correct, setCorrect] = useState<boolean>(true);
-  const [totalChar, setTotalChar] = useState<number>(0);
-  const [correctChar, setCorrectChar] = useState<number>(0);
-  const [accuracy, setAccuracy] = useState<number>(0);
+  const [totalChar, setTotalChar] = useState(0);
+  const [correctChar, setCorrectChar] = useState(0);
+  const [accuracy, setAccuracy] = useState(0);
   const [deletedVal, setDeletedVal] = useState<string>('');
   /* A randomiser function to let us grab a random word from words */
   //try out randomisation after i get it regularly working
@@ -35,7 +35,7 @@ export default function Home() {
   }, [inputValue, deletedVal]);
 
   useEffect(() => {
-    console.log(correctChar / totalChar);
+    setAccuracy(Number(((correctChar / totalChar) * 100).toFixed(2)));
   }, [correctChar, totalChar]);
 
   const sameWord = () => {
@@ -48,7 +48,7 @@ export default function Home() {
   const handleInputChange = (event) => {
     const word = event.target.value;
     setInputValue(word);
-    setDeletedVal(inputValue.slice(0, inputValue.length));
+    setDeletedVal(word.slice(0, word.length - 1));
 
     //backspaces do not affect accuracy or total word count
     if (word == deletedVal) {
@@ -78,19 +78,26 @@ export default function Home() {
         <div className="font-[family-name:var(--font-geist-mono)] self-center">
           Typing Test - test your typing speed!
         </div>
-        <div className="flex flex-row flex-wrap gap-1 bg-zinc-800 p-4 rounded shadow-inner shadow-zinc-900 border-4 border-zinc-700 self-center lg:w-2/3">
-          {TypingTest.map((words) => (
-            <span
-              className={
-                words == TypingTest[currentIndex]
-                  ? 'bg-yellow-100 text-black rounded-sm px-1'
-                  : 'text-white'
-              }
-              key={words}
-            >
-              {words}
-            </span>
-          ))}
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-row justify-around w-2/3 self-center">
+            <div className="">accuracy {accuracy}%</div>
+            <div className="">time</div>
+            <div className="">time</div>
+          </div>
+          <div className="flex flex-row flex-wrap gap-1 bg-zinc-800 p-4 rounded shadow-inner shadow-zinc-900 border-4 border-zinc-700 self-center lg:w-2/3">
+            {TypingTest.map((words) => (
+              <span
+                className={
+                  words == TypingTest[currentIndex]
+                    ? 'bg-yellow-100 text-black rounded-sm px-1'
+                    : 'text-white'
+                }
+                key={words}
+              >
+                {words}
+              </span>
+            ))}
+          </div>
         </div>
         <div className="justify-center self-center">
           {/* read input value */}
