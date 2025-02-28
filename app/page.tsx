@@ -6,8 +6,12 @@ import { useEffect, useState } from 'react';
 export default function Home() {
   const [TypingTest, setTypingTest] = useState<Array<string>>(['']); // Typing test pool
   const [currentIndex, setCurrentIndex] = useState<number>(0); // What word the user is on
-  const [inputValue, setInputValue] = useState(''); //reads what the user has typed
-
+  const [inputValue, setInputValue] = useState<string>(''); //reads what the user has typed
+  const [correct, setCorrect] = useState<boolean>(true);
+  const [totalChar, setTotalChar] = useState<number>(0);
+  const [correctChar, setCorrectChar] = useState<number>(0);
+  const [accuracy, setAccuracy] = useState<number>(0);
+  const [deletedVal, setDeletedVal] = useState<string>('');
   /* A randomiser function to let us grab a random word from words */
   //try out randomisation after i get it regularly working
   /*
@@ -25,32 +29,85 @@ export default function Home() {
     setTypingTest(words);
   }, []);
 
+  useEffect(() => {
+    console.log('Updated state', inputValue);
+    console.log('Deleted state', deletedVal);
+  }, [inputValue, deletedVal]);
+
+  useEffect(() => {
+    console.log(correctChar / totalChar);
+  }, [correctChar, totalChar]);
+
   const sameWord = () => {
     if (inputValue == TypingTest[currentIndex]) {
       setCurrentIndex(currentIndex + 1);
       return true;
     } else return false;
   };
-
+  //Whenever the user types, check if the words are currently accurate
   const handleInputChange = (event) => {
-    setInputValue(event.target.value);
+    const word = event.target.value;
+    setInputValue(word);
+    setDeletedVal(inputValue.slice(0, inputValue.length));
+
+    //backspaces do not affect accuracy or total word count
+    if (word == deletedVal) {
+      return;
+    }
+
+    //compare the expected word to the input value, if true, add to correctChar list
+    if (
+      TypingTest[currentIndex].slice(0, word.length) ===
+      event.target.value
+    ) {
+      setCorrect(true);
+      setCorrectChar(correctChar + 1);
+    } else {
+      setCorrect(false);
+    }
+
+    //Add to total characters
+    setTotalChar(totalChar + 1);
   };
 
   /* create a react hook that manages the state of the input */
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <div className="font-[family-name:var(--font-geist-mono)]"></div>
-        {TypingTest.join(' ')}
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          {/* update input value when spacebar is clicked */}
+      <code className="">THOROUGHTYPE</code>
+      <main className="flex flex-col gap-8 row-start-2 items-start">
+        <div className="font-[family-name:var(--font-geist-mono)] self-center">
+          Typing Test - test your typing speed!
+        </div>
+        <div className="flex flex-row flex-wrap gap-1 bg-zinc-800 p-4 rounded shadow-inner shadow-zinc-900 border-4 border-zinc-700 self-center lg:w-2/3">
+          {TypingTest.map((words) => (
+            <span
+              className={
+                words == TypingTest[currentIndex]
+                  ? 'bg-yellow-100 text-black rounded-sm px-1'
+                  : 'text-white'
+              }
+              key={words}
+            >
+              {words}
+            </span>
+          ))}
+        </div>
+        <div className="justify-center self-center">
+          {/* read input value */}
           <input
-            className="text-black"
+            value={inputValue}
+            className={`text-black border-4 focus:outline-none border-blue-200 bg-white rounded-sm items-center ${
+              correct ? 'border-green-500' : 'border-red-500'
+            } ${inputValue == '' ? 'border-yellow-200' : ''}`}
             onChange={handleInputChange}
-            onKeyDown={(keyDown) => {
-              if (keyDown.key == ' '){
-                if (sameWord() == true) {
-                  
+            onKeyDown={(e) => {
+              if (e.key == ' ') {
+                e.preventDefault();
+                if (sameWord()) {
+                  setInputValue('');
+                  setDeletedVal('');
+                } else {
+                  return false;
                 }
               }
             }}
