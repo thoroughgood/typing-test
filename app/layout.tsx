@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import Image from 'next/image';
+import bg from '../public/old-newspaper-background-1600-x-900-6ksb2hasjjob55ug.jpg';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

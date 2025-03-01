@@ -1,173 +1,146 @@
 'use client';
 import Image from 'next/image';
+import bg from '../public/old-newspaper-background-1600-x-900-6ksb2hasjjob55ug.jpg';
+import bg1 from '../public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
 import words from '../public/words.json';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
-  const [TypingTest, setTypingTest] = useState<Array<string>>(['']); // Typing test pool
-  const [currentIndex, setCurrentIndex] = useState<number>(0); // What word the user is on
-  const [inputValue, setInputValue] = useState<string>(''); //reads what the user has typed
+  const [typingTest, setTypingTest] = useState<Array<string>>(['']);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [inputValue, setInputValue] = useState<string>('');
   const [correct, setCorrect] = useState<boolean>(true);
   const [totalChar, setTotalChar] = useState(0);
   const [correctChar, setCorrectChar] = useState(0);
   const [accuracy, setAccuracy] = useState(0);
-  const [deletedVal, setDeletedVal] = useState<string>('');
-  /* A randomiser function to let us grab a random word from words */
-  //try out randomisation after i get it regularly working
-  /*
-  async function randomiseWords() {
-    return await words[Math.floor(Math.random() * 200)];
+  const [testStart, setTestStart] = useState<boolean>(true);
+  const [time, setTime] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const [wpm, setWpm] = useState(0);
+
+  function randomiseWords() {
+    return 0.5 - Math.random();
   }
-  useEffect(() => {
-    const testArray: string[] = [''];
-    for (let i = 0; i++; i < 50) {
-      testArray.push(randomiseWords());
-    }
-    setTypingTest(testArray);
-  }, []); */
-  useEffect(() => {
-    setTypingTest(words);
-  }, []);
 
   useEffect(() => {
-    console.log('Updated state', inputValue);
-    console.log('Deleted state', deletedVal);
-  }, [inputValue, deletedVal]);
+    if (testStart) {
+      setTypingTest(words.sort(randomiseWords));
+      setTestStart(false);
+      setCurrentIndex(0);
+      setTotalChar(0);
+      setCorrectChar(0);
+      setWpm(0);
+      setTime(0);
+      setIsRunning(false);
+    }
+  }, [testStart]);
+  //if isRunning is true, interval is equal to setInterval, which is the time + 1 every second, prev = 0 by default
+  useEffect(() => {
+    let interval;
+    if (isRunning) {
+      interval = setInterval(() => setTime((prev) => prev + 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isRunning]);
 
   useEffect(() => {
     setAccuracy(Number(((correctChar / totalChar) * 100).toFixed(2)));
-  }, [correctChar, totalChar]);
+  }, [correctChar, totalChar, time]);
 
+  useEffect(() => {
+    setWpm(Number(((totalChar / 5 / time) * 60).toFixed(1)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [time]);
   const sameWord = () => {
-    if (inputValue == TypingTest[currentIndex]) {
+    if (inputValue === typingTest[currentIndex]) {
       setCurrentIndex(currentIndex + 1);
       return true;
-    } else return false;
+    }
+    return false;
   };
-  //Whenever the user types, check if the words are currently accurate
+
   const handleInputChange = (event) => {
+    if (!isRunning) {
+      setIsRunning(true);
+    }
     const word = event.target.value;
     setInputValue(word);
-    setDeletedVal(word.slice(0, word.length - 1));
+    const delWord = word.slice(0, word.length - 1);
 
-    //backspaces do not affect accuracy or total word count
-    if (word == deletedVal) {
-      return;
-    }
+    if (word === delWord) return;
 
-    //compare the expected word to the input value, if true, add to correctChar list
-    if (
-      TypingTest[currentIndex].slice(0, word.length) ===
-      event.target.value
-    ) {
+    if (typingTest[currentIndex].slice(0, word.length) === word) {
       setCorrect(true);
-      setCorrectChar(correctChar + 1);
+      setCorrectChar((prev) => prev + 1);
     } else {
       setCorrect(false);
     }
-
-    //Add to total characters
-    setTotalChar(totalChar + 1);
+    setTotalChar((prev) => prev + 1);
   };
 
-  /* create a react hook that manages the state of the input */
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <code className="">THOROUGHTYPE</code>
+      <Image
+        alt="newspaper textured background"
+        src={bg1.src}
+        className=" absolute inset-0 h-full w-full object-cover -z-10 object-center opacity-[10%]"
+        width="1920"
+        height="1080"
+      ></Image>
+      <code>THOROUGHTYPE</code>
       <main className="flex flex-col gap-8 row-start-2 items-start">
         <div className="font-[family-name:var(--font-geist-mono)] self-center">
           Typing Test - test your typing speed!
         </div>
         <div className="flex flex-col gap-2">
           <div className="flex flex-row justify-around w-2/3 self-center">
-            <div className="">accuracy {accuracy}%</div>
-            <div className="">time</div>
-            <div className="">time</div>
+            <div className="max-w-32">accuracy {accuracy}%</div>
+            <div className="max-w-32">WPM {wpm} </div>
+            <div className="max-w-32">time {time} sec</div>
           </div>
           <div className="flex flex-row flex-wrap gap-1 bg-zinc-800 p-4 rounded shadow-inner shadow-zinc-900 border-4 border-zinc-700 self-center lg:w-2/3">
-            {TypingTest.map((words) => (
+            {typingTest.map((word, index) => (
               <span
                 className={
-                  words == TypingTest[currentIndex]
+                  index === currentIndex
                     ? 'bg-yellow-100 text-black rounded-sm px-1'
                     : 'text-white'
                 }
-                key={words}
+                key={word}
               >
-                {words}
+                {word}
               </span>
             ))}
           </div>
         </div>
         <div className="justify-center self-center">
-          {/* read input value */}
           <input
             value={inputValue}
             className={`text-black border-4 focus:outline-none border-blue-200 bg-white rounded-sm items-center ${
               correct ? 'border-green-500' : 'border-red-500'
-            } ${inputValue == '' ? 'border-yellow-200' : ''}`}
+            } ${inputValue === '' ? 'border-yellow-200' : ''}`}
             onChange={handleInputChange}
+            autoFocus
             onKeyDown={(e) => {
-              if (e.key == ' ') {
+              if (e.key === ' ') {
                 e.preventDefault();
                 if (sameWord()) {
                   setInputValue('');
-                  setDeletedVal('');
-                } else {
-                  return false;
                 }
               }
             }}
-          ></input>
+          />
+          <button
+            className="border-zinc-700 border-2 p-1 ml-4 rounded-md bg-zinc-800"
+            onClick={() => {
+              setTestStart(true);
+              setInputValue('');
+            }}
+          >
+            start
+          </button>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
