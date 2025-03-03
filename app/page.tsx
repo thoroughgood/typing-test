@@ -3,6 +3,7 @@ import Image from 'next/image';
 import bg1 from '../public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
 import words from '../public/words.json';
 import { useEffect, useState, useRef } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
   const [typingTest, setTypingTest] = useState<Array<string>>(['']);
@@ -20,53 +21,78 @@ export default function Home() {
   const [timeLimit, setTimeLimit] = useState<number>(0);
   const [wordLimit, setWordLimit] = useState<number>(50);
   const [wordsShuffled, setWordsShuffled] = useState<string[]>([]);
+  const [testFinished, setTestFinished] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   function shuffleWords() {
     return [...words].sort(() => Math.random() - 0.5);
   }
 
-  //Hook to reset typing test
+  // Hook to reset typing test
   useEffect(() => {
     if (testStart) {
       const shuffled = shuffleWords(); // Shuffle words
-
       if (wordLimit > 0) {
-        setWordsShuffled(shuffled);
         setTypingTest(shuffled.slice(0, wordLimit)); // Use selected word limit
       } else if (timeLimit > 0) {
-        setWordsShuffled(shuffled);
         setTypingTest(shuffled.slice(0, 200)); // Always 200 words for time-based test
       }
-
       setCurrentIndex(0);
       setTotalChar(0);
       setCorrectChar(0);
       setWpm(0);
       setTime(0);
       setIsRunning(false);
-
+      setTestFinished(false);
       setTimeout(() => setTestStart(false), 0);
     }
   }, [testStart]);
-  //if isRunning is true, interval is equal to setInterval, which is the time + 1 every second, prev = 0 by default
+
+  useEffect(() => {
+    console.log(typingTest);
+  }, [typingTest]);
+
+  // if isRunning is true, interval is equal to setInterval, which is the time + 1 every second, prev = 0 by default
   useEffect(() => {
     let interval;
-    if (isRunning) {
+    if (isRunning && !testFinished) {
       interval = setInterval(() => setTime((prev) => prev + 1), 1000);
     }
     return () => clearInterval(interval);
-  }, [isRunning]);
-  //calculate accuracy
+  }, [isRunning, testFinished]);
+
+  // Calculate accuracy
   useEffect(() => {
-    setAccuracy(Number(((correctChar / totalChar) * 100).toFixed(2)));
+    if (totalChar > 0) {
+      setAccuracy(
+        Number(((correctChar / totalChar) * 100).toFixed(2))
+      );
+    }
   }, [correctChar, totalChar, time]);
-  //calculate wpm
+
+  // Calculate wpm
   useEffect(() => {
-    setWpm(Number(((totalChar / 5 / time) * 60).toFixed(1)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [time]);
-  //Check if the words are the same
+    if (time > 0) {
+      setWpm(Number(((totalChar / 5 / time) * 60).toFixed(1)));
+    }
+  }, [time, totalChar]);
+
+  // Check test completion conditions
+  useEffect(() => {
+    // Check if word limit is reached
+    if (wordLimit > 0 && currentIndex >= wordLimit) {
+      setTestFinished(true);
+      setIsRunning(false);
+    }
+
+    // Check if time limit is reached
+    if (timeLimit > 0 && time >= timeLimit) {
+      setTestFinished(true);
+      setIsRunning(false);
+    }
+  }, [currentIndex, time, wordLimit, timeLimit]);
+
+  // Check if the words are the same
   const sameWord = () => {
     if (inputValue === typingTest[currentIndex]) {
       setCurrentIndex(currentIndex + 1);
@@ -75,15 +101,17 @@ export default function Home() {
     return false;
   };
 
-  //typing test logic
+  // Typing test logic
   const handleInputChange = (event) => {
+    if (testFinished) return;
+
     if (!isRunning) {
       setIsRunning(true);
     }
+
     const word = event.target.value;
     setInputValue(word);
     const delWord = word.slice(0, word.length - 1);
-
     if (word === delWord) return;
 
     if (typingTest[currentIndex].slice(0, word.length) === word) {
@@ -98,7 +126,6 @@ export default function Home() {
   const handleOnClick = (event) => {
     const value = Number(event.target.value);
     setTestStart(true);
-
     if ([10, 25, 50].includes(value)) {
       setWordLimit(value);
       setTimeLimit(0); // Reset time limit if setting word limit
@@ -117,7 +144,7 @@ export default function Home() {
         width="1920"
         height="1080"
       ></Image>
-      <code>THOROUGHTYPE</code>
+      <code className="text-white">THOROUGHTYPE</code>
       <main className="flex flex-col gap-8 row-start-2 items-start">
         <div className="flex flex-col gap-2 self-center">
           <div className="flex flex-row gap-8 self-center">
@@ -181,20 +208,27 @@ export default function Home() {
             <div className="max-w-32">time {time} sec</div>
           </div>
           <div className="flex flex-row flex-wrap gap-1 bg-zinc-800 p-8 rounded shadow-inner shadow-zinc-900 border-4 border-zinc-700 self-center lg:w-2/3">
-            {typingTest.map((word, index) => (
-              <span
-                className={`${
-                  index === currentIndex
-                    ? 'bg-yellow-100 text-black text-2xl rounded-sm px-2'
-                    : 'text-white text-xl'
-                } ${
-                  focus ? 'blur-none' : 'blur-sm'
-                }  ease-in-out duration-200 p-1 leading-5`}
-                key={word}
-              >
-                {word}
-              </span>
-            ))}
+            {typingTest.length != 1 ? (
+              typingTest.map((word, index) => (
+                <span
+                  className={`${
+                    index === currentIndex
+                      ? 'bg-yellow-100 text-black text-2xl rounded-sm px-2'
+                      : 'text-white text-xl'
+                  } ${
+                    focus ? 'blur-none' : 'blur-sm'
+                  }  ease-in-out duration-200 p-1 leading-5`}
+                  key={word}
+                >
+                  {word}
+                </span>
+              ))
+            ) : (
+              <div>
+                {' '}
+                <Skeleton />
+              </div>
+            )}
             <div
               className={`${
                 focus ? 'hidden' : ''
@@ -227,6 +261,7 @@ export default function Home() {
                 }
               }
             }}
+            disabled={testFinished}
           />
           <button
             className="border-zinc-700 border-2 p-1 ml-4 rounded-md bg-zinc-800"
@@ -237,9 +272,21 @@ export default function Home() {
               inputRef.current?.focus();
             }}
           >
-            start
+            {testFinished ? 'restart' : 'start'}
           </button>
         </div>
+
+        {testFinished && (
+          <div className="self-center mt-4 p-4 bg-zinc-800 border-2 border-yellow-200 rounded-md">
+            <h2 className="text-xl mb-2 text-yellow-200">
+              Test Complete!
+            </h2>
+            <p>Final WPM: {wpm}</p>
+            <p>Accuracy: {accuracy}%</p>
+            <p>Words completed: {currentIndex}</p>
+            <p>Time: {time} seconds</p>
+          </div>
+        )}
       </main>
     </div>
   );
