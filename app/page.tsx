@@ -136,7 +136,7 @@ export default function Home() {
   };
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] text-white">
       <Image
         alt="newspaper textured background"
         src={bg1.src}
@@ -255,9 +255,11 @@ export default function Home() {
             }}
             onKeyDown={(e) => {
               if (e.key === ' ') {
+                setTotalChar((prev) => prev + 1)
                 e.preventDefault();
                 if (sameWord()) {
                   setInputValue('');
+                  setCorrectChar((prev) => prev + 1)
                 }
               }
             }}
