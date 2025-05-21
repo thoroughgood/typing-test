@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import bg1 from '../public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
 import words from '../public/words.json';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, ChangeEvent, MouseEvent } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
@@ -20,7 +20,6 @@ export default function Home() {
   const [focus, setFocus] = useState<boolean>(true);
   const [timeLimit, setTimeLimit] = useState<number>(0);
   const [wordLimit, setWordLimit] = useState<number>(50);
-  const [wordsShuffled, setWordsShuffled] = useState<string[]>([]);
   const [testFinished, setTestFinished] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -46,7 +45,7 @@ export default function Home() {
       setTestFinished(false);
       setTimeout(() => setTestStart(false), 0);
     }
-  }, [testStart]);
+  }, [testStart, timeLimit, wordLimit]);
 
   useEffect(() => {
     console.log(typingTest);
@@ -54,7 +53,7 @@ export default function Home() {
 
   // if isRunning is true, interval is equal to setInterval, which is the time + 1 every second, prev = 0 by default
   useEffect(() => {
-    let interval;
+    let interval: string | number | NodeJS.Timeout | undefined;
     if (isRunning && !testFinished) {
       interval = setInterval(() => setTime((prev) => prev + 1), 1000);
     }
@@ -102,7 +101,7 @@ export default function Home() {
   };
 
   // Typing test logic
-  const handleInputChange = (event) => {
+  const handleInputChange = (event:ChangeEvent<HTMLInputElement>) => {
     if (testFinished) return;
 
     if (!isRunning) {
@@ -123,8 +122,9 @@ export default function Home() {
     setTotalChar((prev) => prev + 1);
   };
 
-  const handleOnClick = (event) => {
-    const value = Number(event.target.value);
+  function handleOnClick(event: MouseEvent<HTMLButtonElement>) {
+    const value = Number((event.target as HTMLButtonElement).value);
+    console.log(value)
     setTestStart(true);
     if ([10, 25, 50].includes(value)) {
       setWordLimit(value);
@@ -133,7 +133,7 @@ export default function Home() {
       setTimeLimit(value);
       setWordLimit(0); // Reset word limit if setting time limit
     }
-  };
+  }
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] text-white">
