@@ -2,8 +2,19 @@
 import Image from 'next/image';
 import bg1 from '../public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
 import words from '../public/words.json';
-import { useEffect, useState, useRef, ChangeEvent, MouseEvent } from 'react';
+import {
+  useEffect,
+  useState,
+  useRef,
+  ChangeEvent,
+  MouseEvent,
+} from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import MODERN_BROWSERSLIST_TARGET from 'next/dist/shared/lib/modern-browserslist-target';
+
+interface data {
+  message: String;
+}
 
 export default function Home() {
   const [typingTest, setTypingTest] = useState<Array<string>>(['']);
@@ -21,11 +32,18 @@ export default function Home() {
   const [timeLimit, setTimeLimit] = useState<number>(0);
   const [wordLimit, setWordLimit] = useState<number>(50);
   const [testFinished, setTestFinished] = useState<boolean>(false);
+  const [message, setMessage] = useState('loading');
   const inputRef = useRef<HTMLInputElement>(null);
 
   function shuffleWords() {
     return [...words].sort(() => Math.random() - 0.5);
   }
+
+  useEffect(() => {
+    fetch('http://localhost:8080/api/home')
+      .then((res) => res.json())
+      .then((data) => setMessage(data.message));
+  });
 
   // Hook to reset typing test
   useEffect(() => {
@@ -101,7 +119,9 @@ export default function Home() {
   };
 
   // Typing test logic
-  const handleInputChange = (event:ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
     if (testFinished) return;
 
     if (!isRunning) {
@@ -124,7 +144,7 @@ export default function Home() {
 
   function handleOnClick(event: MouseEvent<HTMLButtonElement>) {
     const value = Number((event.target as HTMLButtonElement).value);
-    console.log(value)
+    console.log(value);
     setTestStart(true);
     if ([10, 25, 50].includes(value)) {
       setWordLimit(value);
@@ -145,6 +165,7 @@ export default function Home() {
         height="1080"
       ></Image>
       <code className="text-white">THOROUGHTYPE</code>
+      <p> {message} </p> HEY
       <main className="flex flex-col gap-8 row-start-2 items-start">
         <div className="flex flex-col gap-2 self-center">
           <div className="flex flex-row gap-8 self-center">
@@ -255,11 +276,11 @@ export default function Home() {
             }}
             onKeyDown={(e) => {
               if (e.key === ' ') {
-                setTotalChar((prev) => prev + 1)
+                setTotalChar((prev) => prev + 1);
                 e.preventDefault();
                 if (sameWord()) {
                   setInputValue('');
-                  setCorrectChar((prev) => prev + 1)
+                  setCorrectChar((prev) => prev + 1);
                 }
               }
             }}
