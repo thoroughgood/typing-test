@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { db } from '../../../src/db/index';
+import db from '@/src/db/';
 import { usersTable } from '@/src/db/schema';
 
 const usersRoute = new Hono();

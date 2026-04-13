@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { drizzle } from 'drizzle-orm/libsql/node';
+import { drizzle } from 'drizzle-orm/libsql';
 
 export default function Home() {
   const [message, setMessage] = useState();
