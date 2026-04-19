@@ -39,7 +39,6 @@ export default function Home() {
   const [testFinished, setTestFinished] = useState<boolean>(false);
   const [message, setMessage] = useState('loading');
   const inputRef = useRef<HTMLInputElement>(null);
-  console.log(process.env.AUTH0_DOMAIN + 'test');
 
   function shuffleWords() {
     return [...words].sort(() => Math.random() - 0.5);

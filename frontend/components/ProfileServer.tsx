@@ -1,6 +1,7 @@
 'use client';
 import { useUser } from '@auth0/nextjs-auth0';
 import Image from 'next/image';
+import defaultImage from '@/public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
 
 export default function Profile() {
   const { user, isLoading } = useUser();
@@ -10,7 +11,7 @@ export default function Profile() {
       {user && (
         <div style={{ textAlign: 'center' }}>
           <Image
-            src={String(user.picture)}
+            src={String(user.picture) || defaultImage}
             alt="Profile"
             width="80"
             height="80"
