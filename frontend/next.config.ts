@@ -8,7 +8,7 @@ module.exports = {
   images: {
     remotePatterns: [
       new URL('https://lh3.googleusercontent.com/a/**'),
-      new URL('s.gravatar.com'),
+      new URL('https://s.gravatar.com'),
     ],
   },
 };

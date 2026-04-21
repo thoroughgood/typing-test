@@ -6,6 +6,15 @@ import { useState } from 'react';
 export default function Navbar() {
   const [hidden, setHidden] = useState<boolean>(true);
   const { user, isLoading } = useUser();
+  }
+  if (user) {
+    const response = await fetch(`https://${process.env.APP_BASE_URL}/api/users/post`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(user)
+    });
+    console.log
+  }
 
   const onClick = () => {
     setHidden(!hidden);
