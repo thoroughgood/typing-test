@@ -12,6 +12,7 @@ import {
 import TypeList from '@/components/TypeList';
 import Stats from '@/components/Stats';
 import ProfileServer from '../components/ProfileServer';
+import { useUser } from '@auth0/nextjs-auth0';
 
 interface data {
   message: String;
@@ -39,9 +40,32 @@ export default function Home() {
   const [testFinished, setTestFinished] = useState<boolean>(false);
   const [message, setMessage] = useState('loading');
   const inputRef = useRef<HTMLInputElement>(null);
+  const { user, isLoading } = useUser();
 
   function shuffleWords() {
     return [...words].sort(() => Math.random() - 0.5);
+  }
+  async function userInfo() {
+    if (user) {
+      //get the user from database to prove they're real
+      const id = user.sub;
+      const response = await fetch(
+        `https://${process.env.APP_BASE_URL}/api/users/{$id}`,
+        {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+      if (!response) {
+        const addUser = await fetch(`https://${process.env.APP_BASE_URL}/api/users/`, {
+          method: 'POST'
+          headers: { 'Content-Type': 'application/json'}
+          body: JSON.stringify(user)
+        })
+      }
+      //if there is no user in database, pass the information into database to register the user on our website
+
+    }
   }
 
   //this probably will remain inside the parent
