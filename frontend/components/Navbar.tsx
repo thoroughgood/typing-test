@@ -3,22 +3,27 @@ import { useUser } from '@auth0/nextjs-auth0';
 import Link from 'next/link';
 import { useState } from 'react';
 
-export default function Navbar() {
+export default async function Navbar() {
   const [hidden, setHidden] = useState<boolean>(true);
   const { user, isLoading } = useUser();
-  }
+
+  //Check if there is a user -> display page as login or logout
   if (user) {
-    const response = await fetch(`https://${process.env.APP_BASE_URL}/api/users/post`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(user)
-    });
-    console.log
+    const response = await fetch(
+      `https://${process.env.APP_BASE_URL}/api/users/post`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user),
+      },
+    );
+    console.log(response);
   }
 
-  const onClick = () => {
-    setHidden(!hidden);
-  };
+  function onClick() {
+    setHidden(true);
+  }
+
   return (
     <>
       {isLoading && <p>Loading..</p>}

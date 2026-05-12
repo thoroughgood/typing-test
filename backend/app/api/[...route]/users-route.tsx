@@ -1,10 +1,9 @@
 import { Hono } from 'hono';
 import db from '@/src/db/';
-import userInsert from '@/src/db/schema';
+import { eq } from 'drizzle-orm';
 import { usersTable } from '@/src/db/schema';
 
 const usersRoute = new Hono();
-type newUser = typeof userInsert;
 
 usersRoute.get('/', async (c) => {
   const users = await db.select().from(usersTable);
@@ -16,5 +15,17 @@ usersRoute.post('/add', async (c) => {
   const { id, username, email } = await c.req.json();
   await db.insert(usersTable).values({ username, email });
   return c.text('add users');
+});
+
+usersRoute.get('/:id', async (c) => {
+  const { id } = await c.req.json();
+  const user = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, id))
+    .get();
+  if (!user) {
+    return c.json({ error: 'User does not exist' }, 404);
+  }
 });
 export default usersRoute;
