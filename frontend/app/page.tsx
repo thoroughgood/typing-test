@@ -39,13 +39,15 @@ export default function Home() {
   const [wordLimit, setWordLimit] = useState<number>(50);
   const [testFinished, setTestFinished] = useState<boolean>(false);
   const [message, setMessage] = useState('loading');
+  const [usernamePopUp, setUsernamePopUp] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { user, isLoading } = useUser();
+  const [username, setUsername] = useState<String>('');
 
   function shuffleWords() {
     return [...words].sort(() => Math.random() - 0.5);
   }
-  async function userInfo() {
+  async function userSignIn() {
     if (user) {
       //get the user from database to prove they're real
       const id = user.sub;
@@ -56,15 +58,23 @@ export default function Home() {
           headers: { 'Content-Type': 'application/json' },
         },
       );
+      //if there is no user they sign up and then we add to database with new username
       if (!response) {
-        const addUser = await fetch(`https://${process.env.APP_BASE_URL}/api/users/`, {
-          method: 'POST'
-          headers: { 'Content-Type': 'application/json'}
-          body: JSON.stringify(user)
-        })
+        //TODO:
+        //Trigger popup for username entry
+        setUsernamePopUp(true);
+        //Type in username then click continue -> store it in useState
+        //Need to return the usernamePopUp as false
+        const addUser = await fetch(
+          `https://${process.env.APP_BASE_URL}/api/users/`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(user),
+          },
+        );
       }
       //if there is no user in database, pass the information into database to register the user on our website
-
     }
   }
 
@@ -205,7 +215,10 @@ export default function Home() {
       <code className="text-white">THOROUGHTYPE</code>{' '}
       <main className="flex flex-col gap-8 row-start-2 items-start">
         <div className="flex flex-col gap-2 self-center">
-          <div className="flex flex-row gap-8 self-center">
+          <div
+            id="test-settings"
+            className="flex flex-row gap-8 self-center"
+          >
             <div
               className={
                 wordLimit
