@@ -211,8 +211,11 @@ export default function Home() {
         width="1920"
         height="1080"
       ></Image>
+      {/* This is here for me to see the data displayed by user easily */}
       <ProfileServer></ProfileServer>{' '}
-      <code className="text-white">THOROUGHTYPE</code>{' '}
+      <code id="Title" className="text-white">
+        THOROUGHTYPE
+      </code>{' '}
       <main className="flex flex-col gap-8 row-start-2 items-start">
         <div className="flex flex-col gap-2 self-center">
           <div
@@ -269,7 +272,10 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <div className="font-[family-name:var(--font-geist-mono)] self-center">
+        <div
+          id="Heading"
+          className="font-[family-name:var(--font-geist-mono)] self-center"
+        >
           Typing Test - test your typing speed!
         </div>
         <div className="flex flex-col gap-2">
