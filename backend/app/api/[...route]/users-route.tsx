@@ -13,7 +13,7 @@ usersRoute.get('/', async (c) => {
 usersRoute.post('/add', async (c) => {
   //post route waits for information to be sent
   const { id, username, email } = await c.req.json();
-  await db.insert(usersTable).values({ username, email });
+  await db.insert(usersTable).values({ id, username, email });
   return c.text('add users');
 });
 
