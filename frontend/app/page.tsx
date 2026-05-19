@@ -51,6 +51,16 @@ export default function Home() {
     if (user) {
       //get the user from database to prove they're real
       const id = user.sub;
+
+      //TESTING AREA
+      const jwt = await fetch(
+        `http://${process.env.APP_BASE_URL}/auth/access-token`,
+        {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+
       const response = await fetch(
         `https://${process.env.APP_BASE_URL}/api/users/{$id}`,
         {
