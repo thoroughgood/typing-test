@@ -18,6 +18,9 @@ interface data {
   message: String;
 }
 
+//something i learned
+//the useUser() method implicitly authenticates the user directly via Auth0, no need for JWT
+
 export default function Home() {
   /* typing test hooks */
   const [typingTest, setTypingTest] = useState<Array<string>>(['']);
@@ -47,6 +50,12 @@ export default function Home() {
   function shuffleWords() {
     return [...words].sort(() => Math.random() - 0.5);
   }
+  //userSignIn method flow
+  //Function is called when we identify that a user has signed in with OAuth
+  //once (user) is true -> they have signed in
+
+  //check database with id extracted from user -> if in database already, load the users information
+  //if not in database, we need to add the user to the database
   async function userSignIn() {
     if (user) {
       //get the user from database to prove they're real
@@ -60,7 +69,9 @@ export default function Home() {
           headers: { 'Content-Type': 'application/json' },
         },
       );
-
+      //
+      //if response is positive -> load user information etc
+      //if response is negative -> sign them in
       const response = await fetch(
         `https://${process.env.APP_BASE_URL}/api/users/{$id}`,
         {

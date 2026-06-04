@@ -10,10 +10,10 @@ import { real } from 'drizzle-orm/sqlite-core';
 //created_at: creation date, text
 export const Users = sqliteTable('users_table', {
   id: int().primaryKey({ autoIncrement: true }), //Native id
-  auth0_id: text().notNull().unique(), //Unique identifier
+  auth0Id: text().notNull().unique(), //Unique identifier
   username: text().notNull(),
   email: text().notNull().unique(),
-  created_at: text().default(sql`(CURRENT_DATE)`),
+  createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 });
 
 //typing tests users: one, tests: many
@@ -26,7 +26,7 @@ export const typingTests = sqliteTable('typing_test', {
     .references(() => Users.id),
   wpm: int().notNull(),
   acc: real().notNull(),
-  createdAt: text().default(sql`(CURRENT_DATE)`),
+  createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 });
 
 //userStats table
@@ -34,6 +34,7 @@ export const typingTests = sqliteTable('typing_test', {
 //userId: int -> foreign key so references
 export const userStats = sqliteTable('stats_table', {
   userId: int()
+    .primaryKey()
     .notNull()
     .references(() => Users.id),
   acc: real(),

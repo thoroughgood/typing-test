@@ -26,6 +26,8 @@ usersRoute.get('/:id', async (c) => {
     .get();
   if (!user) {
     return c.json({ error: 'User does not exist' }, 404);
+  } else {
+    return c.json({ success: 'User exists' }, 200);
   }
 });
 export default usersRoute;
