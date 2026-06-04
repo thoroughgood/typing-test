@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "3230bee1-ac7d-40a0-842e-8a5596b89d4d",
+  "id": "70f7a73a-6cfb-432d-a8c2-60854c7585fc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "users_table": {
@@ -13,6 +13,13 @@
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
+        },
+        "auth0Id": {
+          "name": "auth0Id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "username": {
           "name": "username",
@@ -28,23 +35,23 @@
           "notNull": true,
           "autoincrement": false
         },
-        "password_hash": {
-          "name": "password_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
+        "createdAt": {
+          "name": "createdAt",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "(CURRENT_DATE)"
+          "default": "(CURRENT_TIMESTAMP)"
         }
       },
       "indexes": {
+        "users_table_auth0Id_unique": {
+          "name": "users_table_auth0Id_unique",
+          "columns": [
+            "auth0Id"
+          ],
+          "isUnique": true
+        },
         "users_table_email_unique": {
           "name": "users_table_email_unique",
           "columns": [
@@ -54,6 +61,125 @@
         }
       },
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "typing_test": {
+      "name": "typing_test",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "wpm": {
+          "name": "wpm",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "acc": {
+          "name": "acc",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP)"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "typing_test_userId_users_table_id_fk": {
+          "name": "typing_test_userId_users_table_id_fk",
+          "tableFrom": "typing_test",
+          "tableTo": "users_table",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "stats_table": {
+      "name": "stats_table",
+      "columns": {
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "acc": {
+          "name": "acc",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "avgWpm": {
+          "name": "avgWpm",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "topWpm": {
+          "name": "topWpm",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "testsCompleted": {
+          "name": "testsCompleted",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "stats_table_userId_users_table_id_fk": {
+          "name": "stats_table_userId_users_table_id_fk",
+          "tableFrom": "stats_table",
+          "tableTo": "users_table",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}

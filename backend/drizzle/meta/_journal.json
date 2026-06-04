@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1775644929126,
-      "tag": "0000_long_blackheart",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1780549064756,
-      "tag": "0001_salty_valkyrie",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1780549279950,
-      "tag": "0002_ambitious_proudstar",
+      "when": 1780574359509,
+      "tag": "0000_rich_robbie_robertson",
       "breakpoints": true
     }
   ]
