@@ -18,7 +18,9 @@ usersRoute.post('/add', async (c) => {
 });
 
 usersRoute.get('/:id', async (c) => {
-  const { id } = await c.req.json();
+  //grab slug from url
+  const id = Number(c.req.param('id'));
+  //users.id is integer in database
   const user = await db
     .select()
     .from(Users)
@@ -27,7 +29,8 @@ usersRoute.get('/:id', async (c) => {
   if (!user) {
     return c.json({ error: 'User does not exist' }, 404);
   } else {
-    return c.json({ success: 'User exists' }, 200);
+    //need to pass back user data
+    return c.json(user, 200);
   }
 });
 export default usersRoute;
