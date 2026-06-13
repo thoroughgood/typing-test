@@ -13,6 +13,8 @@ import TypeList from '@/components/TypeList';
 import Stats from '@/components/Stats';
 import ProfileServer from '../components/ProfileServer';
 import { useUser } from '@auth0/nextjs-auth0';
+import { User } from 'lucide-react';
+import { useTypingTest } from './hooks/useTypingTest';
 
 interface data {
   message: String;
@@ -24,8 +26,6 @@ interface data {
 export default function Home() {
   /* typing test hooks */
   const [typingTest, setTypingTest] = useState<Array<string>>(['']);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [inputValue, setInputValue] = useState<string>('');
   /* Stats */
   const [correct, setCorrect] = useState<boolean>(true);
   const [totalChar, setTotalChar] = useState(0);
@@ -46,6 +46,8 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
   const { user, isLoading } = useUser();
   const [username, setUsername] = useState<String>('');
+
+  {currentIndex, inputValue, setCurrentIndex, setInputValue} = useTypingTest()
 
   function shuffleWords() {
     return [...words].sort(() => Math.random() - 0.5);
@@ -73,7 +75,7 @@ export default function Home() {
       //if response is positive -> load user information etc
       //if response is negative -> sign them in
       const response = await fetch(
-        `https://${process.env.APP_BASE_URL}/api/users/{$id}`,
+        `https://${process.env.APP_BASE_URL}/api/users/${id}`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -91,7 +93,7 @@ export default function Home() {
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(user),
+            body: JSON.stringify({ user, username: username }),
           },
         );
       }
@@ -158,14 +160,7 @@ export default function Home() {
     }
   }, [currentIndex, time, wordLimit, timeLimit]);
 
-  // Check if the words are the same
-  const sameWord = () => {
-    if (inputValue === typingTest[currentIndex]) {
-      setCurrentIndex(currentIndex + 1);
-      return true;
-    }
-    return false;
-  };
+
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement>,
@@ -326,7 +321,7 @@ export default function Home() {
               if (e.key === ' ') {
                 setTotalChar((prev) => prev + 1);
                 e.preventDefault();
-                if (sameWord()) {
+                if (speltCorrectly()) {
                   setInputValue('');
                   setCorrectChar((prev) => prev + 1);
                 }
