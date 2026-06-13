@@ -24,7 +24,7 @@ interface data {
 
 export default function Home() {
   /* typing test hooks */
-  const [typingTest, setTypingTest] = useState<Array<string>>(['']);
+
   /* Stats */
   const [correct, setCorrect] = useState<boolean>(true);
 

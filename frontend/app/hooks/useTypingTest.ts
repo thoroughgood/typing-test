@@ -1,71 +1,135 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import words from '@/public/words.json';
 
-//Current iteration is simply just moving state logic
-//just call upon this function and this is functionally the
-//same as just sitting in home
 export function useTypingTest(wordLimit: number, timeLimit: number) {
+  const [typingTest, setTypingTest] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [inputValue, setInputValue] = useState('');
-  const [correctChar, setCorrectChar] = useState(0);
-  const [totalChar, setTotalChar] = useState(0);
-  const [acc, setAcc] = useState(0);
-
-  /* In progress stats */
-  const [testStart, setTestStart] = useState<boolean>(true);
-  const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const [wpm, setWpm] = useState(0);
 
-  // Check if the words are the same
-  const speltCorrectly = (typingTest: string[]) => {
-    if (inputValue === typingTest[currentIndex]) {
-      setCurrentIndex(currentIndex + 1);
-      return true;
-    }
-    return false;
-  };
+  const [time, setTime] = useState(0);
+  const [totalChar, setTotalChar] = useState(0);
+  const [correctChar, setCorrectChar] = useState(0);
+  const [correct, setCorrect] = useState(true);
 
-  //Restart test
+  //useMemo caches result unless calculation changes
+  const testFinished =
+    (wordLimit > 0 && currentIndex >= wordLimit) ||
+    (timeLimit > 0 && time >= timeLimit);
+
+  const wpm =
+    time > 0 ? Number(((totalChar / 5 / time) * 60).toFixed(1)) : 0;
+
+  const acc =
+    totalChar > 0
+      ? Number(((correctChar / totalChar) * 100).toFixed(2))
+      : 0;
+
+  // ─────────────────────────────
+  // Timer effect
+  // ─────────────────────────────
   useEffect(() => {
-    if (testStart) {
-      const shuffled = [...words].sort(() => Math.random() - 0.5); // Shuffle words
-      if (wordLimit > 0) {
-        setTypingTest(shuffled.slice(0, wordLimit)); // Use selected word limit
-      } else if (timeLimit > 0) {
-        setTypingTest(shuffled.slice(0, 200)); // Always 200 words for time-based test
-      }
-      setCurrentIndex(0);
-      setTotalChar(0);
-      setCorrectChar(0);
-      setWpm(0);
-      setTime(0);
+    if (!isRunning || testFinished) return;
+
+    const interval = setInterval(() => {
+      setTime((prev) => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isRunning, testFinished]);
+
+  // Stop test automatically
+  useEffect(() => {
+    if (testFinished) {
       setIsRunning(false);
-      setTestFinished(false);
-      setTimeout(() => setTestStart(false), 0);
     }
-  }, [testStart, timeLimit, wordLimit]);
+  }, [testFinished]);
 
-  //calculate Accuracy
-  useEffect(() => {
-    if (totalChar > 0) {
-      setAcc(Number(((correctChar / totalChar) * 100).toFixed(2)));
-    }
-  }, [correctChar, totalChar]);
+  function initializeTest() {
+    //shuffle words
+    const shuffled = [...words].sort(() => Math.random() - 0.5);
 
-  // Calculate wpm
-  useEffect(() => {
-    if (time > 0) {
-      const wpm = ((totalChar / 5 / time) * 60).toFixed(1);
-      setWpm(Number(wpm));
+    const limit = wordLimit > 0 ? wordLimit : 200;
+
+    setTypingTest(shuffled.slice(0, limit));
+
+    setCurrentIndex(0);
+    setInputValue('');
+    setTime(0);
+    setTotalChar(0);
+    setCorrectChar(0);
+    setCorrect(true);
+    setIsRunning(false);
+  }
+
+  function startTest() {
+    setIsRunning(true);
+  }
+
+  function resetTest() {
+    initializeTest();
+  }
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (testFinished) return;
+
+    if (!isRunning) setIsRunning(true);
+
+    const value = e.target.value;
+    setInputValue(value);
+
+    const currentWord = typingTest[currentIndex];
+
+    if (currentWord?.slice(0, value.length) === value) {
+      setCorrect(true);
+      setCorrectChar((prev) => prev + 1);
+    } else {
+      setCorrect(false);
     }
-  }, [time, totalChar]);
+
+    setTotalChar((prev) => prev + 1);
+  }
+
+  function speltCorrectly() {
+    return inputValue === typingTest[currentIndex];
+  }
+
+  function handleSpacePress(
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) {
+    if (e.key !== ' ') return;
+
+    e.preventDefault();
+
+    if (speltCorrectly()) {
+      setCurrentIndex((prev) => prev + 1);
+      setInputValue('');
+    }
+
+    setTotalChar((prev) => prev + 1);
+  }
+
+  useEffect(() => {
+    initializeTest();
+  }, [wordLimit, timeLimit]);
 
   return {
-    currentIndex,
+    // states
+    typingTest,
     inputValue,
-    setCurrentIndex,
-    setInputValue,
-    speltCorrectly,
+    currentIndex,
+    time,
+    isRunning,
+
+    // calculations
+    testFinished,
+    wpm,
+    acc,
+
+    // actions
+    handleInputChange,
+    handleSpacePress,
+    startTest,
+    resetTest,
   };
 }
