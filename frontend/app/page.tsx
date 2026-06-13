@@ -1,7 +1,6 @@
 'use client';
 import Image from 'next/image';
 import bg1 from '../public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
-import words from '../public/words.json';
 import {
   useEffect,
   useState,
@@ -28,14 +27,7 @@ export default function Home() {
   const [typingTest, setTypingTest] = useState<Array<string>>(['']);
   /* Stats */
   const [correct, setCorrect] = useState<boolean>(true);
-  const [totalChar, setTotalChar] = useState(0);
-  const [correctChar, setCorrectChar] = useState(0);
-  const [acc, setAcc] = useState(0);
-  /* In progress stats */
-  const [testStart, setTestStart] = useState<boolean>(true);
-  const [time, setTime] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
-  const [wpm, setWpm] = useState(0);
+
   const [focus, setFocus] = useState<boolean>(true);
   /* Typing test settings */
   const [timeLimit, setTimeLimit] = useState<number>(0);
@@ -47,11 +39,14 @@ export default function Home() {
   const { user, isLoading } = useUser();
   const [username, setUsername] = useState<String>('');
 
-  {currentIndex, inputValue, setCurrentIndex, setInputValue} = useTypingTest()
+  const {
+    currentIndex,
+    inputValue,
+    setCurrentIndex,
+    setInputValue,
+    speltCorrectly,
+  } = useTypingTest(wordLimit, timeLimit);
 
-  function shuffleWords() {
-    return [...words].sort(() => Math.random() - 0.5);
-  }
   //userSignIn method flow
   //Function is called when we identify that a user has signed in with OAuth
   //once (user) is true -> they have signed in
@@ -103,24 +98,7 @@ export default function Home() {
 
   //this probably will remain inside the parent
   // Hook to reset typing test
-  useEffect(() => {
-    if (testStart) {
-      const shuffled = shuffleWords(); // Shuffle words
-      if (wordLimit > 0) {
-        setTypingTest(shuffled.slice(0, wordLimit)); // Use selected word limit
-      } else if (timeLimit > 0) {
-        setTypingTest(shuffled.slice(0, 200)); // Always 200 words for time-based test
-      }
-      setCurrentIndex(0);
-      setTotalChar(0);
-      setCorrectChar(0);
-      setWpm(0);
-      setTime(0);
-      setIsRunning(false);
-      setTestFinished(false);
-      setTimeout(() => setTestStart(false), 0);
-    }
-  }, [testStart, timeLimit, wordLimit]);
+
   //this react hook checks if the typing test has finished, and also manages time
   // if isRunning is true, interval is equal to setInterval, which is the time + 1 every second, prev = 0 by default
   useEffect(() => {
@@ -130,19 +108,6 @@ export default function Home() {
     }
     return () => clearInterval(interval);
   }, [isRunning, testFinished]);
-  //calculate Accuracy
-  useEffect(() => {
-    if (totalChar > 0) {
-      setAcc(Number(((correctChar / totalChar) * 100).toFixed(2)));
-    }
-  }, [correctChar, totalChar]);
-  // Calculate wpm
-  useEffect(() => {
-    if (time > 0) {
-      const wpm = ((totalChar / 5 / time) * 60).toFixed(1);
-      setWpm(Number(wpm));
-    }
-  }, [time, totalChar]);
 
   // Check test completion conditions
   useEffect(() => {
@@ -159,8 +124,6 @@ export default function Home() {
       setIsRunning(false);
     }
   }, [currentIndex, time, wordLimit, timeLimit]);
-
-
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement>,
@@ -321,7 +284,7 @@ export default function Home() {
               if (e.key === ' ') {
                 setTotalChar((prev) => prev + 1);
                 e.preventDefault();
-                if (speltCorrectly()) {
+                if (speltCorrectly(typingTest)) {
                   setInputValue('');
                   setCorrectChar((prev) => prev + 1);
                 }
