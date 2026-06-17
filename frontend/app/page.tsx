@@ -32,7 +32,6 @@ export default function Home() {
   /* Typing test settings */
   const [timeLimit, setTimeLimit] = useState<number>(0);
   const [wordLimit, setWordLimit] = useState<number>(50);
-  const [testFinished, setTestFinished] = useState<boolean>(false);
   const [message, setMessage] = useState('loading');
   const [usernamePopUp, setUsernamePopUp] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -40,11 +39,18 @@ export default function Home() {
   const [username, setUsername] = useState<String>('');
 
   const {
-    currentIndex,
+    typingTest,
     inputValue,
-    setCurrentIndex,
-    setInputValue,
-    speltCorrectly,
+    currentIndex,
+    time,
+    isRunning,
+    testFinished,
+    wpm,
+    acc,
+    handleInputChange,
+    handleSpacePress,
+    startTest,
+    resetTest,
   } = useTypingTest(wordLimit, timeLimit);
 
   //userSignIn method flow
@@ -101,56 +107,10 @@ export default function Home() {
 
   //this react hook checks if the typing test has finished, and also manages time
   // if isRunning is true, interval is equal to setInterval, which is the time + 1 every second, prev = 0 by default
-  useEffect(() => {
-    let interval: string | number | NodeJS.Timeout | undefined;
-    if (isRunning && !testFinished) {
-      interval = setInterval(() => setTime((prev) => prev + 1), 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isRunning, testFinished]);
-
-  // Check test completion conditions
-  useEffect(() => {
-    // Check if word limit is reached
-    if (wordLimit > 0 && currentIndex >= wordLimit) {
-      setTestFinished(true);
-
-      setIsRunning(false);
-    }
-
-    // Check if time limit is reached
-    if (timeLimit > 0 && time >= timeLimit) {
-      setTestFinished(true);
-      setIsRunning(false);
-    }
-  }, [currentIndex, time, wordLimit, timeLimit]);
-
-  const handleInputChange = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
-    if (testFinished) return;
-
-    if (!isRunning) {
-      setIsRunning(true);
-    }
-    /* Collect current typed word */
-    const word = event.target.value;
-    setInputValue(word);
-    const delWord = word.slice(0, word.length - 1);
-    if (word === delWord) return;
-
-    if (typingTest[currentIndex].slice(0, word.length) === word) {
-      setCorrect(true);
-      setCorrectChar((prev) => prev + 1);
-    } else {
-      setCorrect(false);
-    }
-    setTotalChar((prev) => prev + 1);
-  };
 
   function handleOnClick(event: MouseEvent<HTMLButtonElement>) {
     const value = Number((event.target as HTMLButtonElement).value);
-    setTestStart(true);
+    startTest();
     if ([10, 25, 50].includes(value)) {
       setWordLimit(value);
       setTimeLimit(0); // Reset time limit if setting word limit
@@ -251,6 +211,7 @@ export default function Home() {
             ))}
           </div>
         </div>
+        <button className="" onClick={userSignIn}></button>
         <div
           id="Heading"
           className="font-[family-name:var(--font-geist-mono)] self-center"
@@ -282,12 +243,7 @@ export default function Home() {
             }}
             onKeyDown={(e) => {
               if (e.key === ' ') {
-                setTotalChar((prev) => prev + 1);
-                e.preventDefault();
-                if (speltCorrectly(typingTest)) {
-                  setInputValue('');
-                  setCorrectChar((prev) => prev + 1);
-                }
+                handleSpacePress(e);
               }
             }}
             disabled={testFinished}
@@ -296,7 +252,7 @@ export default function Home() {
             className="border-zinc-700 border-2 p-1 ml-4 rounded-md bg-zinc-800"
             type="submit"
             onClick={() => {
-              setTestStart(true);
+              resetTest();
               setInputValue('');
               inputRef.current?.focus();
             }}
