@@ -103,6 +103,7 @@ export function useTypingTest(wordLimit: number, timeLimit: number) {
 
     if (speltCorrectly()) {
       setCurrentIndex((prev) => prev + 1);
+      setCorrectChar(correctChar + 1);
       setInputValue('');
     }
 
@@ -113,6 +114,8 @@ export function useTypingTest(wordLimit: number, timeLimit: number) {
     initializeTest();
   }, [wordLimit, timeLimit]);
 
+  console.log(correctChar, totalChar);
+
   return {
     // states
     typingTest,
@@ -120,6 +123,7 @@ export function useTypingTest(wordLimit: number, timeLimit: number) {
     currentIndex,
     time,
     isRunning,
+    correct,
 
     // calculations
     testFinished,

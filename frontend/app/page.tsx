@@ -26,7 +26,6 @@ export default function Home() {
   /* typing test hooks */
 
   /* Stats */
-  const [correct, setCorrect] = useState<boolean>(true);
 
   const [focus, setFocus] = useState<boolean>(true);
   /* Typing test settings */
@@ -44,6 +43,7 @@ export default function Home() {
     currentIndex,
     time,
     isRunning,
+    correct,
     testFinished,
     wpm,
     acc,
@@ -59,6 +59,9 @@ export default function Home() {
 
   //check database with id extracted from user -> if in database already, load the users information
   //if not in database, we need to add the user to the database
+  useEffect(() => {
+    userSignIn();
+  }, [user]);
   async function userSignIn() {
     if (user) {
       //get the user from database to prove they're real
@@ -211,7 +214,9 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <button className="" onClick={userSignIn}></button>
+        <button className="" onClick={userSignIn}>
+          USER SIGN IN BUTTON
+        </button>
         <div
           id="Heading"
           className="font-[family-name:var(--font-geist-mono)] self-center"
@@ -253,7 +258,6 @@ export default function Home() {
             type="submit"
             onClick={() => {
               resetTest();
-              setInputValue('');
               inputRef.current?.focus();
             }}
           >
