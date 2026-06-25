@@ -5,16 +5,23 @@ import { Users } from '@/src/db/schema';
 
 const usersRoute = new Hono();
 
+interface createUserData {
+  username: string;
+  email: string;
+  auth0Id: string;
+}
+
+async function createUser(userData: createUserData) {
+  const { username, email, auth0Id } = userData;
+  const res = await db
+    .insert(Users)
+    .values({ username, email, auth0Id });
+  return res;
+}
+
 usersRoute.get('/', async (c) => {
   const users = await db.select().from(Users);
   return c.json(users);
-});
-
-usersRoute.post('/add', async (c) => {
-  //post route waits for information to be sent
-  const { auth0Id, username, email } = await c.req.json();
-  await db.insert(Users).values({ auth0Id, username, email });
-  return c.text('add users');
 });
 
 usersRoute.get('/:id', async (c) => {
@@ -33,4 +40,21 @@ usersRoute.get('/:id', async (c) => {
     return c.json(user, 200);
   }
 });
+
+//Find out if a user exists based on auth0Id
+usersRoute.post('/sync', async (c) => {
+  const { username, email, auth0Id } = await c.req.json();
+  const user = await db
+    .select()
+    .from(Users)
+    .where(eq(Users.auth0Id, auth0Id))
+    .get();
+  //if the user doesnt exist create them
+  if (!user) {
+    console.log(createUser({ username, email, auth0Id }));
+    return c.json({ message: 'User Created' }, 200);
+  }
+  return c.json(user, 200);
+});
+
 export default usersRoute;

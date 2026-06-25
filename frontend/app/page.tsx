@@ -11,7 +11,7 @@ import {
 import TypeList from '@/components/TypeList';
 import Stats from '@/components/Stats';
 import ProfileServer from '../components/ProfileServer';
-import { useUser } from '@auth0/nextjs-auth0';
+import { getAccessToken, useUser } from '@auth0/nextjs-auth0';
 import { User } from 'lucide-react';
 import { useTypingTest } from './hooks/useTypingTest';
 
@@ -62,20 +62,16 @@ export default function Home() {
   useEffect(() => {
     userSignIn();
   }, [user]);
+
+  async function userSync() {
+    //this checks if the user is in the database or not
+  }
+
+  //this checks if a user is synced, if they are load their details
   async function userSignIn() {
     if (user) {
       //get the user from database to prove they're real
       const id = user.sub;
-
-      //TESTING AREA
-      const jwt = await fetch(
-        `http://${process.env.APP_BASE_URL}/auth/access-token`,
-        {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
-      //
       //if response is positive -> load user information etc
       //if response is negative -> sign them in
       const response = await fetch(
