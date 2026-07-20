@@ -16,3 +16,4 @@ app.get('/hello', (c) => {
 app.route('/users', usersRoute);
 app.route('/leaderboard', leaderboardRoute);
 export const GET = handle(app);
+export const POST = handle(app);
