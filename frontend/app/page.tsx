@@ -14,6 +14,7 @@ import ProfileServer from '../components/ProfileServer';
 import { getAccessToken, useUser } from '@auth0/nextjs-auth0';
 import { User } from 'lucide-react';
 import { useTypingTest } from './hooks/useTypingTest';
+import { useCurrentUser } from './hooks/useCurrentUser';
 
 interface data {
   message: String;
@@ -36,7 +37,7 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
   const { user, isLoading } = useUser();
   const [username, setUsername] = useState<String>('');
-
+  //Typing Test Hooks
   const {
     typingTest,
     inputValue,
@@ -52,60 +53,21 @@ export default function Home() {
     startTest,
     resetTest,
   } = useTypingTest(wordLimit, timeLimit);
+  //User Sync Hook
+  const { userSync } = useCurrentUser(user);
 
-  //userSignIn method flow
-  //Function is called when we identify that a user has signed in with OAuth
-  //once (user) is true -> they have signed in
-
-  //check database with id extracted from user -> if in database already, load the users information
-  //if not in database, we need to add the user to the database
+  //when user state changes -> check user sync -> user exists -> grab from database
+  //                                           -> user doesn't exist -> create user
   useEffect(() => {
-    userSignIn();
-  }, [user]);
-
-  async function userSync() {
-    //this checks if the user is in the database or not
-  }
-
-  //this checks if a user is synced, if they are load their details
-  async function userSignIn() {
-    if (user) {
-      //get the user from database to prove they're real
-      const id = user.sub;
-      //if response is positive -> load user information etc
-      //if response is negative -> sign them in
-      const response = await fetch(
-        `https://${process.env.APP_BASE_URL}/api/users/${id}`,
-        {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
-      //if there is no user they sign up and then we add to database with new username
-      if (!response) {
-        //TODO:
-        //Trigger popup for username entry
-        setUsernamePopUp(true);
-        //Type in username then click continue -> store it in useState
-        //Need to return the usernamePopUp as false
-        const addUser = await fetch(
-          `https://${process.env.APP_BASE_URL}/api/users/`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user, username: username }),
-          },
-        );
-      }
-      //if there is no user in database, pass the information into database to register the user on our website
+    console.log('state change for user');
+    if (!user) return;
+    console.log('user exists');
+    async function sync() {
+      console.log('syncing users');
+      await userSync();
     }
-  }
-
-  //this probably will remain inside the parent
-  // Hook to reset typing test
-
-  //this react hook checks if the typing test has finished, and also manages time
-  // if isRunning is true, interval is equal to setInterval, which is the time + 1 every second, prev = 0 by default
+    sync();
+  }, [user]);
 
   function handleOnClick(event: MouseEvent<HTMLButtonElement>) {
     const value = Number((event.target as HTMLButtonElement).value);
@@ -118,27 +80,6 @@ export default function Home() {
       setWordLimit(0); // Reset word limit if setting time limit
     }
   }
-
-  /*
-  if (testFinished) {
-    const testResults = {
-      WPM: wpm,
-      ACC: acc,
-      WORDS: currentIndex,
-      TIME: time,
-    };
-    try {
-      const response = await fetch('/api/testResults', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(testResults),
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }  */
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] text-white">
@@ -210,9 +151,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <button className="" onClick={userSignIn}>
-          USER SIGN IN BUTTON
-        </button>
         <div
           id="Heading"
           className="font-[family-name:var(--font-geist-mono)] self-center"

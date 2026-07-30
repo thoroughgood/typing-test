@@ -43,23 +43,21 @@ usersRoute.get('/:id', async (c) => {
 
 //Find out if a user exists based on auth0Id
 usersRoute.post('/sync', async (c) => {
-  const { username, email, auth0Id } = await c.req.json();
+  //make sure user exists
+  const createUserData = await c.req.json();
+  console.log(createUserData);
 
   const existingUser = await db
     .select()
     .from(Users)
-    .where(eq(Users.auth0Id, auth0Id))
+    .where(eq(Users.auth0Id, createUserData.auth0Id))
     .get();
 
   if (existingUser) {
     return c.json(existingUser, 200);
   }
-
-  const createdUser = await db
-    .insert(Users)
-    .values({ username, email, auth0Id })
-    .returning()
-    .get();
+  //if not create user
+  const createdUser = await createUser(createUserData);
 
   return c.json(createdUser, 201);
 });

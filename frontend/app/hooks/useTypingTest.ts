@@ -114,8 +114,6 @@ export function useTypingTest(wordLimit: number, timeLimit: number) {
     initializeTest();
   }, [wordLimit, timeLimit]);
 
-  console.log(correctChar, totalChar);
-
   return {
     // states
     typingTest,
