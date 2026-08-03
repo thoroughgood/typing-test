@@ -4,7 +4,7 @@ export function useCurrentUser(user: any) {
   async function userSync() {
     console.log('inside userSync() in useCurrentUsers.ts');
     const res = await fetch(
-      `https://${process.env.APP_BASE_URL}/api/users/sync`,
+      `${process.env.NEXT_PUBLIC_APP_BACKEND_URL}/api/users/sync`,
       {
         method: 'POST',
         headers: {
@@ -17,7 +17,8 @@ export function useCurrentUser(user: any) {
         }),
       },
     );
-    console.log(res);
+    const data = await res.json();
+    return data;
   }
   return { userSync };
 }

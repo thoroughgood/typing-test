@@ -25,9 +25,11 @@ usersRoute.get('/', async (c) => {
 });
 
 usersRoute.get('/:id', async (c) => {
+  console.log('test');
   //grab slug from url
   const id = Number(c.req.param('id'));
   //users.id is integer in database
+  console.log(id);
   const user = await db
     .select()
     .from(Users)
@@ -54,12 +56,18 @@ usersRoute.post('/sync', async (c) => {
     .get();
 
   if (existingUser) {
-    return c.json(existingUser, 200);
+    return c.json(
+      { message: 'User already exists', user: existingUser },
+      200,
+    );
   }
   //if not create user
   const createdUser = await createUser(createUserData);
 
-  return c.json(createdUser, 201);
+  return c.json(
+    { message: 'User created successfully', user: createdUser },
+    201,
+  );
 });
 
 export default usersRoute;

@@ -15,9 +15,17 @@ import { getAccessToken, useUser } from '@auth0/nextjs-auth0';
 import { User } from 'lucide-react';
 import { useTypingTest } from './hooks/useTypingTest';
 import { useCurrentUser } from './hooks/useCurrentUser';
+import Profile from '../components/ProfileServer';
 
 interface data {
   message: String;
+}
+
+interface dbUser {
+  id: number;
+  username: string;
+  email: string;
+  auth0Id: string;
 }
 
 //something i learned
@@ -36,6 +44,7 @@ export default function Home() {
   const [usernamePopUp, setUsernamePopUp] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { user, isLoading } = useUser();
+  const [dbUser, getDbUser] = useState<dbUser | null>(null);
   const [username, setUsername] = useState<String>('');
   //Typing Test Hooks
   const {
@@ -53,18 +62,20 @@ export default function Home() {
     startTest,
     resetTest,
   } = useTypingTest(wordLimit, timeLimit);
+
+  console.log(dbUser);
   //User Sync Hook
   const { userSync } = useCurrentUser(user);
-
   //when user state changes -> check user sync -> user exists -> grab from database
   //                                           -> user doesn't exist -> create user
   useEffect(() => {
-    console.log('state change for user');
+    console.log('user state changed');
     if (!user) return;
-    console.log('user exists');
+    console.log('user exists, syncing with database');
     async function sync() {
-      console.log('syncing users');
-      await userSync();
+      const data = await userSync();
+      console.log('sync response', data);
+      getDbUser(data.user);
     }
     sync();
   }, [user]);
@@ -90,8 +101,8 @@ export default function Home() {
         width="1920"
         height="1080"
       ></Image>
-      {/* This is here for me to see the data displayed by user easily */}
-      <ProfileServer></ProfileServer>{' '}
+      {/* profile server waits for dbUser to become a valid object */}
+      {dbUser && <ProfileServer dbUser={dbUser}></ProfileServer>}
       <code id="Title" className="text-white">
         THOROUGHTYPE
       </code>{' '}

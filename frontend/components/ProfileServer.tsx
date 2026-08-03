@@ -2,23 +2,28 @@
 import { useUser } from '@auth0/nextjs-auth0';
 import Image from 'next/image';
 import defaultImage from '@/public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
+import Link from 'next/dist/client/link';
 
-export default function Profile() {
+export default function Profile({ dbUser }: { dbUser: any }) {
   const { user, isLoading } = useUser();
+  console.log(dbUser);
+  if (isLoading || !dbUser) {
+    return <p>Loading...</p>;
+  }
   return (
     <>
       {isLoading && <p>Loading...</p>}
       {user && (
         <div style={{ textAlign: 'center' }}>
-          <Image
-            src={String(user.picture) || defaultImage}
-            alt="Profile"
-            width="80"
-            height="80"
-          />
-          <h2>{user.name}</h2>
-          <p>{user.email}</p>
-          <pre>{JSON.stringify(user, null, 2)}</pre>
+          <Link href={`/profile/${dbUser.id}`}>
+            <Image
+              className="rounded-xl border-2 border-black"
+              src={String(user.picture) || defaultImage}
+              alt="Profile"
+              width="80"
+              height="80"
+            />
+          </Link>
         </div>
       )}
     </>
