@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import db from '@/src/db/';
 import { eq } from 'drizzle-orm';
 import { Users } from '@/src/db/schema';
+import { get } from 'https';
 
 const usersRoute = new Hono();
 
@@ -39,6 +40,23 @@ usersRoute.get('/:id', async (c) => {
     return c.json({ error: 'User does not exist' }, 404);
   } else {
     //need to pass back user data
+    return c.json(user, 200);
+  }
+});
+
+usersRoute.get('/:id/typing-tests', async (c) => {
+  const id = Number(c.req.param('id'));
+  const user = await db.query.Users.findFirst({
+    where: eq(Users.id, id),
+    with: {
+      typingTests: true,
+      stats: true,
+    },
+  });
+  if (!user) {
+    return c.json({ error: 'User does not exist' }, 404);
+  } else {
+    //need to pass back typing test data
     return c.json(user, 200);
   }
 });
