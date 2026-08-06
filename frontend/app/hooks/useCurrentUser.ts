@@ -2,7 +2,6 @@ import { useUser } from '@auth0/nextjs-auth0';
 //Identify if the user is already in the database
 export function useCurrentUser(user: any) {
   async function userSync() {
-    console.log('inside userSync() in useCurrentUsers.ts');
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_APP_BACKEND_URL}/api/users/sync`,
       {
