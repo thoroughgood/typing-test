@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import words from '@/public/words.json';
 
-export function useTypingTest(wordLimit: number, timeLimit: number) {
+export function useTypingTest(
+  wordLimit: number,
+  timeLimit: number,
+  userId: number,
+) {
   const [typingTest, setTypingTest] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [inputValue, setInputValue] = useState('');
@@ -113,6 +117,27 @@ export function useTypingTest(wordLimit: number, timeLimit: number) {
   useEffect(() => {
     initializeTest();
   }, [wordLimit, timeLimit]);
+
+  useEffect(() => {
+    if (testFinished) {
+      console.log(wpm, acc, userId);
+      const result = fetch(
+        `${process.env.NEXT_PUBLIC_APP_BACKEND_URL}/api/typing-tests/results`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            wpm: wpm,
+            acc: acc,
+            userId: userId,
+          }),
+        },
+      );
+      console.log(result);
+    }
+  }, [testFinished]);
 
   return {
     // states

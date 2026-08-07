@@ -61,7 +61,7 @@ export default function Home() {
     handleSpacePress,
     startTest,
     resetTest,
-  } = useTypingTest(wordLimit, timeLimit);
+  } = useTypingTest(wordLimit, timeLimit, dbUser?.id || 0);
 
   console.log(dbUser);
   //User Sync Hook
