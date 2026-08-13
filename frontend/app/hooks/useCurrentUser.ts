@@ -19,5 +19,6 @@ export function useCurrentUser(user: any) {
     const data = await res.json();
     return data;
   }
+
   return { userSync };
 }
