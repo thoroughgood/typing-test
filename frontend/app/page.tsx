@@ -44,7 +44,7 @@ export default function Home() {
   const [usernamePopUp, setUsernamePopUp] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { user, isLoading } = useUser();
-  const [dbUser, getDbUser] = useState<dbUser | null>(null);
+  const [dbUser, setDbUser] = useState<dbUser | null>(null);
   const [username, setUsername] = useState<String>('');
   //Typing Test Hooks
   const {
@@ -75,7 +75,7 @@ export default function Home() {
     async function sync() {
       const data = await userSync();
       console.log('sync response', data);
-      getDbUser(data.user);
+      setDbUser(data.user);
     }
     sync();
   }, [user]);
@@ -101,11 +101,6 @@ export default function Home() {
         width="1920"
         height="1080"
       ></Image>
-      {/* profile server waits for dbUser to become a valid object */}
-      {dbUser && <ProfileServer dbUser={dbUser}></ProfileServer>}
-      <code id="Title" className="text-white">
-        THOROUGHTYPE
-      </code>{' '}
       <main className="flex flex-col gap-8 row-start-2 items-start">
         <div className="flex flex-col gap-2 self-center">
           <div

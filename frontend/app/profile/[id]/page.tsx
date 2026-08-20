@@ -81,7 +81,7 @@ export default async function ProtectedPage({ user, params }: Props) {
           }) => (
             <div
               className={`flex flex-row gap-4 rounded-md pl-4 ${Number(test.id) / 2 == 1 ? 'bg-neutral-800' : 'bg-neutral-600'}`}
-              key={String(id)}
+              key={String(test.id)}
             >
               <div className="">{test.id}</div>
               <div className="">{test.wpm}</div>

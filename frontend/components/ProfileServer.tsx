@@ -7,6 +7,7 @@ import Link from 'next/dist/client/link';
 export default function Profile({ dbUser }: { dbUser: any }) {
   const { user, isLoading } = useUser();
   console.log(dbUser);
+
   if (isLoading || !dbUser) {
     return <p>Loading...</p>;
   }
