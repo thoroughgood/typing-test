@@ -1,6 +1,3 @@
-import { Callback } from 'hono/lambda-edge';
-import { useEffect } from 'react';
-
 interface statsParams {
   stats: {
     wpm: number;

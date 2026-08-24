@@ -1,7 +1,7 @@
-import { useUser } from '@auth0/nextjs-auth0';
+import { User } from '@auth0/auth0-react';
 import { useCallback } from 'react';
 
-export function useCurrentUser(user: any) {
+export function useCurrentUser(user: User | null | undefined) {
   const userSync = useCallback(async () => {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_APP_BACKEND_URL}/api/users/sync`,

@@ -1,9 +1,13 @@
-import { useCurrentUser } from '@/app/hooks/useCurrentUser';
-import { useUser } from '@auth0/nextjs-auth0';
-
 type Props = {
   params: Promise<{ id: string }>;
 };
+
+interface testProps {
+  id: number;
+  wpm: number;
+  acc: number;
+  createdAt: string;
+}
 
 export default async function ProtectedPage({ params }: Props) {
   const { id } = await params;
@@ -34,7 +38,7 @@ export default async function ProtectedPage({ params }: Props) {
           <div className="flex flex-col justify-center gap-6 sm:flex-row sm:items-end">
             <div>
               <p className="mb-2 font-bold font-[family-name:var(--font-geist-mono)] text-xl uppercase tracking-widest text-yellow-200">
-                {userProfile.username}'s Profile
+                {userProfile.username}&apos;s Profile
               </p>
             </div>
           </div>
@@ -91,7 +95,7 @@ export default async function ProtectedPage({ params }: Props) {
               </thead>
 
               <tbody>
-                {typingTests.map((test) => (
+                {typingTests.map((test: testProps) => (
                   <tr
                     key={test.id}
                     className="border-b border-zinc-700 last:border-0 hover:bg-zinc-700/50"

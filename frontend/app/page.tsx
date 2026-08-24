@@ -1,25 +1,12 @@
 'use client';
 import Image from 'next/image';
 import bg1 from '../public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
-import {
-  useEffect,
-  useState,
-  useRef,
-  ChangeEvent,
-  MouseEvent,
-} from 'react';
+import { useEffect, useState, useRef, MouseEvent } from 'react';
 import TypeList from '@/components/TypeList';
 import Stats from '@/components/Stats';
-import ProfileServer from '../components/ProfileServer';
-import { getAccessToken, useUser } from '@auth0/nextjs-auth0';
-import { User } from 'lucide-react';
+import { useUser } from '@auth0/nextjs-auth0';
 import { useTypingTest } from './hooks/useTypingTest';
 import { useCurrentUser } from './hooks/useCurrentUser';
-import Profile from '../components/ProfileServer';
-
-interface data {
-  message: String;
-}
 
 interface dbUser {
   id: number;
@@ -40,19 +27,15 @@ export default function Home() {
   /* Typing test settings */
   const [timeLimit, setTimeLimit] = useState<number>(0);
   const [wordLimit, setWordLimit] = useState<number>(50);
-  const [message, setMessage] = useState('loading');
-  const [usernamePopUp, setUsernamePopUp] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { user, isLoading } = useUser();
+  const { user } = useUser();
   const [dbUser, setDbUser] = useState<dbUser | null>(null);
-  const [username, setUsername] = useState<String>('');
   //Typing Test Hooks
   const {
     typingTest,
     inputValue,
     currentIndex,
     time,
-    isRunning,
     correct,
     testFinished,
     wpm,

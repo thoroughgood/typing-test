@@ -3,19 +3,9 @@ import Image from 'next/image';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Navbar from '../components/Navbar';
-import { useCurrentUser } from './hooks/useCurrentUser';
 import bg1 from '../public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
 
 require('dotenv').config();
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'Create Next App',

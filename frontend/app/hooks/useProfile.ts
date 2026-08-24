@@ -1,9 +1,25 @@
 'use client';
 import { useEffect, useState } from 'react';
 
+interface typingTestProps {
+  id: number;
+  userid: number;
+  wpm: number;
+  acc: number;
+  createdAt: string;
+}
+interface statsProps {
+  averageWpm: number;
+  averageAcc: number;
+  topWpm: number;
+  totalTests: number;
+}
+
 export function useProfile(userId: string) {
-  const [userTypingTests, setUserTypingTests] = useState<any[]>([]);
-  const [userStats, setUserStats] = useState<any>(null);
+  const [userTypingTests, setUserTypingTests] = useState<
+    typingTestProps[]
+  >([]);
+  const [userStats, setUserStats] = useState<statsProps>(Object);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
