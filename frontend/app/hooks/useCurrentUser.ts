@@ -1,7 +1,8 @@
 import { useUser } from '@auth0/nextjs-auth0';
-//Identify if the user is already in the database
+import { useCallback } from 'react';
+
 export function useCurrentUser(user: any) {
-  async function userSync() {
+  const userSync = useCallback(async () => {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_APP_BACKEND_URL}/api/users/sync`,
       {
@@ -16,9 +17,14 @@ export function useCurrentUser(user: any) {
         }),
       },
     );
+
+    if (!res.ok) {
+      throw new Error('Failed to sync user');
+    }
+
     const data = await res.json();
     return data;
-  }
+  }, [user?.name, user?.email, user?.sub]);
 
   return { userSync };
 }

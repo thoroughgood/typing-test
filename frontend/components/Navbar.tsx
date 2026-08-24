@@ -3,8 +3,8 @@ import { useCurrentUser } from '@/app/hooks/useCurrentUser';
 import { useUser } from '@auth0/nextjs-auth0';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import ProfileServer from './ProfileServer';
-interface dbUser {
+
+interface DbUser {
   id: number;
   username: string;
   email: string;
@@ -12,66 +12,69 @@ interface dbUser {
 }
 
 export default function Navbar() {
-  const [hidden, setHidden] = useState<boolean>(true);
-  const { user, isLoading } = useUser();
-  const [dbUser, setDbUser] = useState<dbUser | null>(null);
-  function onClick() {
-    setHidden(true);
-  }
+  const { user } = useUser();
+  const [dbUser, setDbUser] = useState<DbUser | null>(null);
+
   const { userSync } = useCurrentUser(user);
+
   useEffect(() => {
-    console.log('user state changed');
-    if (!user) return;
-    console.log('user exists, syncing with database');
-    async function sync() {
-      const data = await userSync();
-      console.log('sync response', data);
-      setDbUser(data.user);
+    if (!user) {
+      setDbUser(null);
+      return;
     }
+
+    async function sync() {
+      try {
+        const data = await userSync();
+        setDbUser(data.user);
+      } catch (error) {
+        console.error('Failed to sync user:', error);
+      }
+    }
+
     sync();
-  }, [user]);
+  }, [user, userSync]);
 
   return (
-    <>
-      <div className="bg-zinc-800 h-24 shadow-md rounded-sm flex flex-row items-center justify-center gap-8 w-full">
-        {user && (
-          <>
-            <nav className="justify-evenly items-center">
-              <Link
-                className="bg-zinc-300 rounded-md p-4 font-bold h-12"
-                href="/auth/logout"
-                prefetch={true}
-                onClick={onClick}
-              >
-                <button>Logout</button>
-              </Link>
-            </nav>
-          </>
-        )}
-        {!user && (
-          <>
-            <nav className="flex flex-row items-center justify-evenly align-middle w-full">
-              <button className="">
-                <Link
-                  className="bg-zinc-300 rounded-md p-4 font-bold h-12"
-                  href="/auth/login"
-                  prefetch={true}
-                >
-                  Login
-                </Link>
-              </button>
-            </nav>
-          </>
-        )}
-        {/* profile server waits for dbUser to become a valid object */}
-        <button className="bg-zinc-300 rounded-md p-4 h-12">
-          <Link href="/"> Home </Link>
-        </button>
-        <code id="Title" className="text-white">
+    <header className="w-full px-8 pt-6">
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between rounded-md bg-zinc-800 px-6 shadow-md">
+        {/* Logo */}
+        <Link
+          href="/"
+          className="font-[family-name:var(--font-geist-mono)] text-xl font-bold tracking-wide text-white transition hover:text-yellow-200"
+        >
           THOROUGHTYPE
-        </code>{' '}
-        {dbUser && <ProfileServer dbUser={dbUser}></ProfileServer>}
-      </div>
-    </>
+        </Link>
+        {/* Account */}
+        <div className="flex items-center gap-4">
+          {user ? (
+            <>
+              {dbUser && (
+                <Link
+                  href={`/profile/${dbUser.id}`}
+                  className="hidden text-sm text-zinc-400 transition hover:text-yellow-200 sm:block"
+                >
+                  {dbUser.username}
+                </Link>
+              )}
+
+              <Link
+                href="/auth/logout"
+                className="rounded-md border border-zinc-600 px-4 py-2 text-sm font-bold text-white transition hover:border-yellow-200 hover:text-yellow-200"
+              >
+                Logout
+              </Link>
+            </>
+          ) : (
+            <Link
+              href="/auth/login"
+              className="rounded-md border border-yellow-200 px-4 py-2 text-sm font-bold text-yellow-200 transition hover:bg-yellow-200 hover:text-zinc-900"
+            >
+              Login
+            </Link>
+          )}
+        </div>
+      </nav>
+    </header>
   );
 }

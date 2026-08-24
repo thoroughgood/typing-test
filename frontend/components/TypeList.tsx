@@ -13,7 +13,7 @@ export default function typingTest({
 }: typeTestInterface) {
   return (
     <>
-      <div className="flex flex-row flex-wrap gap-1 bg-zinc-800 p-8 rounded shadow-inner shadow-zinc-900 border-4 border-zinc-700 self-center lg:w-2/3">
+      <div className="flex flex-row flex-wrap gap-1 bg-zinc-800 p-8 rounded shadow-inner shadow-zinc-900 border-4 border-zinc-700 self-center lg:w-1/2">
         {typeTest.length != 1 ? (
           typeTest.map((word, index) => (
             <span
