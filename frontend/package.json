@@ -42,6 +42,6 @@
   },
   "allowScripts": {
     "msw@2.7.3": true,
-    "sharp@0.34.5": true
+    "sharp@0.34.3": true
   }
 }
