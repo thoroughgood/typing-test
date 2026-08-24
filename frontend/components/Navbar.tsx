@@ -58,20 +58,20 @@ export default function Navbar() {
                 </Link>
               )}
 
-              <Link
+              <a
                 href="/auth/logout"
                 className="rounded-md border border-zinc-600 px-4 py-2 text-sm font-bold text-white transition hover:border-yellow-200 hover:text-yellow-200"
               >
                 Logout
-              </Link>
+              </a>
             </>
           ) : (
-            <Link
+            <a
               href="/auth/login"
               className="rounded-md border border-yellow-200 px-4 py-2 text-sm font-bold text-yellow-200 transition hover:bg-yellow-200 hover:text-zinc-900"
             >
               Login
-            </Link>
+            </a>
           )}
         </div>
       </nav>

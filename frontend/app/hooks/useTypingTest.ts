@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import words from '@/public/words.json';
 
 export function useTypingTest(
@@ -16,7 +16,6 @@ export function useTypingTest(
   const [correctChar, setCorrectChar] = useState(0);
   const [correct, setCorrect] = useState(true);
 
-  //useMemo caches result unless calculation changes
   const testFinished =
     (wordLimit > 0 && currentIndex >= wordLimit) ||
     (timeLimit > 0 && time >= timeLimit);
@@ -49,7 +48,7 @@ export function useTypingTest(
     }
   }, [testFinished]);
 
-  function initializeTest() {
+  const initialiseTest = useCallback(() => {
     //shuffle words
     const shuffled = [...words].sort(() => Math.random() - 0.5);
 
@@ -64,14 +63,14 @@ export function useTypingTest(
     setCorrectChar(0);
     setCorrect(true);
     setIsRunning(false);
-  }
+  }, [wordLimit]);
 
   function startTest() {
     setIsRunning(true);
   }
 
   function resetTest() {
-    initializeTest();
+    initialiseTest();
   }
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -115,8 +114,8 @@ export function useTypingTest(
   }
 
   useEffect(() => {
-    initializeTest();
-  }, [wordLimit, timeLimit]);
+    initialiseTest();
+  }, [wordLimit, timeLimit, initialiseTest]);
 
   useEffect(() => {
     if (testFinished) {
@@ -137,7 +136,7 @@ export function useTypingTest(
       );
       console.log(result);
     }
-  }, [testFinished]);
+  }, [testFinished, wpm, acc, userId]);
 
   return {
     // states

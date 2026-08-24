@@ -113,7 +113,7 @@ export default async function ProtectedPage({ params }: Props) {
                     </td>
 
                     <td className="px-6 py-4 text-zinc-400">
-                      {new Date(test.createdAt).toLocaleDateString()}
+                      {test.createdAt}
                     </td>
                   </tr>
                 ))}
