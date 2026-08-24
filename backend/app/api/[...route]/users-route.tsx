@@ -49,7 +49,9 @@ usersRoute.get('/:id/typing-tests', async (c) => {
   const user = await db.query.Users.findFirst({
     where: eq(Users.id, id),
     with: {
-      typingTests: true,
+      typingTests: {
+        orderBy: (typingTests, { desc }) => [desc(typingTests.id)],
+      },
       stats: true,
     },
   });
