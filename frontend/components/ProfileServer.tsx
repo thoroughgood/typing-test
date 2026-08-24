@@ -3,8 +3,10 @@ import { useUser } from '@auth0/nextjs-auth0';
 import Image from 'next/image';
 import defaultImage from '@/public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
 import Link from 'next/dist/client/link';
-
-export default function Profile({ dbUser }: { dbUser: any }) {
+interface userProps {
+  id: number;
+}
+export default function Profile(dbUser: userProps) {
   const { user, isLoading } = useUser();
   console.log(dbUser);
 

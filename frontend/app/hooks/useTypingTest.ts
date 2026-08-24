@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import words from '@/public/words.json';
 
 export function useTypingTest(
