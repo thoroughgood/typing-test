@@ -1,13 +1,7 @@
 'use client';
 import Image from 'next/image';
 import bg1 from '../public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
-import {
-  useEffect,
-  useState,
-  useRef,
-  MouseEvent,
-  useCallback,
-} from 'react';
+import { useEffect, useState, useRef, MouseEvent } from 'react';
 import TypeList from '@/components/TypeList';
 import Stats from '@/components/Stats';
 import { useUser } from '@auth0/nextjs-auth0';
