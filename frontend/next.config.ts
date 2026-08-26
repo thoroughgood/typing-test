@@ -1,7 +1,10 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    // @ts-expect-error Node middleware is not yet included in Next 15.5's config types.
+    nodeMiddleware: true,
+  },
 };
 
 module.exports = {
