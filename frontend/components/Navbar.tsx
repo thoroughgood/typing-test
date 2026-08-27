@@ -2,7 +2,7 @@
 import { useCurrentUser } from '@/app/hooks/useCurrentUser';
 import { useUser } from '@auth0/nextjs-auth0';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface DbUser {
   id: number;
@@ -14,26 +14,38 @@ interface DbUser {
 export default function Navbar() {
   const { user } = useUser();
   const [dbUser, setDbUser] = useState<DbUser | null>(null);
+  const syncedUserRef = useRef<string | null>(null);
 
   const { userSync } = useCurrentUser(user);
 
   useEffect(() => {
-    if (!user) {
+    const auth0UserId = user?.sub;
+
+    if (!auth0UserId) {
+      syncedUserRef.current = null;
       setDbUser(null);
       return;
     }
 
+    if (syncedUserRef.current === auth0UserId) {
+      return;
+    }
+
+    syncedUserRef.current = auth0UserId;
+
     async function sync() {
       try {
         const data = await userSync();
-        setDbUser(data.user);
+        if (data?.user) {
+          setDbUser(data.user);
+        }
       } catch (error) {
         console.error('Failed to sync user:', error);
       }
     }
 
     sync();
-  }, [user, userSync]);
+  }, [user?.sub, userSync]);
 
   return (
     <header className="w-full px-8 pt-6">

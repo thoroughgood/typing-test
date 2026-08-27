@@ -28,8 +28,11 @@ export default function Home() {
   const [timeLimit, setTimeLimit] = useState<number>(0);
   const [wordLimit, setWordLimit] = useState<number>(50);
   const inputRef = useRef<HTMLInputElement>(null);
+  const syncedUserRef = useRef<string | null>(null);
   const { user } = useUser();
   const [dbUser, setDbUser] = useState<dbUser | null>(null);
+  const [needsUsername, setNeedsUsername] = useState(false);
+  const [usernameInput, setUsernameInput] = useState('');
   //Typing Test Hooks
   const {
     typingTest,
@@ -49,19 +52,62 @@ export default function Home() {
   console.log(dbUser);
   //User Sync Hook
   const { userSync } = useCurrentUser(user);
-  //when user state changes -> check user sync -> user exists -> grab from database
-  //                                           -> user doesn't exist -> create user
+
   useEffect(() => {
-    console.log('user state changed');
-    if (!user) return;
-    console.log('user exists, syncing with database');
-    async function sync() {
-      const data = await userSync();
-      console.log('sync response', data);
-      setDbUser(data.user);
+    const auth0UserId = user?.sub;
+
+    if (!auth0UserId) {
+      syncedUserRef.current = null;
+      setNeedsUsername(false);
+      return;
     }
+
+    if (syncedUserRef.current === auth0UserId) {
+      return;
+    }
+
+    syncedUserRef.current = auth0UserId;
+
+    async function sync() {
+      try {
+        const data = await userSync();
+        console.log('sync response', data);
+
+        if (data?.needsUsername) {
+          setNeedsUsername(true);
+          return;
+        }
+
+        setDbUser(data.user);
+      } catch (error) {
+        console.error('Failed to sync user', error);
+      }
+    }
+
     sync();
-  }, [user, userSync]);
+  }, [user?.sub, userSync]);
+
+  async function handleUsernameSubmit() {
+    const trimmedUsername = usernameInput.trim();
+
+    if (!trimmedUsername || !user?.sub) {
+      return;
+    }
+
+    try {
+      const data = await userSync(trimmedUsername);
+
+      if (data?.needsUsername) {
+        setNeedsUsername(true);
+        return;
+      }
+
+      setNeedsUsername(false);
+      setDbUser(data.user);
+    } catch (error) {
+      console.error('Failed to create user with username', error);
+    }
+  }
 
   function handleOnClick(event: MouseEvent<HTMLButtonElement>) {
     const value = Number((event.target as HTMLButtonElement).value);
@@ -73,6 +119,37 @@ export default function Home() {
       setTimeLimit(value);
       setWordLimit(0); // Reset word limit if setting time limit
     }
+  }
+
+  if (needsUsername) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-white">
+        <div className="w-full max-w-md rounded-md border border-zinc-700 bg-zinc-900 p-6 shadow-lg">
+          <h2 className="mb-3 text-2xl font-bold text-yellow-200">
+            Choose a username
+          </h2>
+          <p className="mb-6 text-sm text-zinc-400">
+            This will be displayed on your profile and leaderboard.
+          </p>
+
+          <input
+            value={usernameInput}
+            onChange={(e) => setUsernameInput(e.target.value)}
+            placeholder="Enter username"
+            className="w-full rounded-md border border-zinc-600 bg-zinc-800 px-3 py-2 text-white outline-none focus:border-yellow-200"
+          />
+
+          <button
+            type="button"
+            onClick={handleUsernameSubmit}
+            disabled={!usernameInput.trim()}
+            className="mt-4 w-full rounded-md bg-yellow-200 px-4 py-2 font-bold text-zinc-900 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

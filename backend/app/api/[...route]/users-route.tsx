@@ -69,11 +69,7 @@ usersRoute.post('/sync', async (c) => {
 
     console.log('SYNC DATA:', createUserData);
 
-    if (
-      !createUserData.username ||
-      !createUserData.email ||
-      !createUserData.auth0Id
-    ) {
+    if (!createUserData.email || !createUserData.auth0Id) {
       return c.json(
         {
           error: 'Missing required user fields',
@@ -99,7 +95,23 @@ usersRoute.post('/sync', async (c) => {
       );
     }
 
-    const createdUser = await createUser(createUserData);
+    const username = String(createUserData.username || '').trim();
+
+    if (!username) {
+      return c.json(
+        {
+          error: 'Username required for first-time signup',
+          needsUsername: true,
+        },
+        409,
+      );
+    }
+
+    const createdUser = await createUser({
+      username,
+      email: createUserData.email,
+      auth0Id: createUserData.auth0Id,
+    });
 
     return c.json(
       {
