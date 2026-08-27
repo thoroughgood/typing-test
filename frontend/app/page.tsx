@@ -1,5 +1,5 @@
 'use client';
-import Image from 'next/image';
+import Image from "next/legacy/image";
 import bg1 from '../public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
 import { useEffect, useState, useRef, MouseEvent } from 'react';
 import TypeList from '@/components/TypeList';
