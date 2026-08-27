@@ -63,31 +63,63 @@ usersRoute.get('/:id/typing-tests', async (c) => {
   }
 });
 
-//Find out if a user exists based on auth0Id
 usersRoute.post('/sync', async (c) => {
-  //make sure user exists
-  const createUserData = await c.req.json();
-  console.log(createUserData);
+  try {
+    const createUserData = await c.req.json();
 
-  const existingUser = await db
-    .select()
-    .from(Users)
-    .where(eq(Users.auth0Id, createUserData.auth0Id))
-    .get();
+    console.log('SYNC DATA:', createUserData);
 
-  if (existingUser) {
+    if (
+      !createUserData.username ||
+      !createUserData.email ||
+      !createUserData.auth0Id
+    ) {
+      return c.json(
+        {
+          error: 'Missing required user fields',
+          received: createUserData,
+        },
+        400,
+      );
+    }
+
+    const existingUser = await db
+      .select()
+      .from(Users)
+      .where(eq(Users.auth0Id, createUserData.auth0Id))
+      .get();
+
+    if (existingUser) {
+      return c.json(
+        {
+          message: 'User already exists',
+          user: existingUser,
+        },
+        200,
+      );
+    }
+
+    const createdUser = await createUser(createUserData);
+
     return c.json(
-      { message: 'User already exists', user: existingUser },
-      200,
+      {
+        message: 'User created successfully',
+        user: createdUser,
+      },
+      201,
+    );
+  } catch (error) {
+    console.error('SYNC ERROR:', error);
+
+    return c.json(
+      {
+        error: 'Failed to sync user',
+        message:
+          error instanceof Error ? error.message : String(error),
+      },
+      500,
     );
   }
-  //if not create user
-  const createdUser = await createUser(createUserData);
-
-  return c.json(
-    { message: 'User created successfully', user: createdUser },
-    201,
-  );
 });
 
 export default usersRoute;
