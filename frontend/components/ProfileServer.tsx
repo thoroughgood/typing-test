@@ -2,7 +2,7 @@
 import { useUser } from '@auth0/nextjs-auth0';
 import Image from 'next/image';
 import defaultImage from '@/public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
-import Link from 'next/dist/client/link';
+import Link from 'next/link';
 interface userProps {
   id: number;
 }
