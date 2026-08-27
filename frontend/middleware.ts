@@ -12,6 +12,8 @@ export async function middleware(request: NextRequest) {
   return await auth0.middleware(request);
 }
 
+export default middleware;
+
 export const config = {
   runtime: 'nodejs',
   matcher: [
