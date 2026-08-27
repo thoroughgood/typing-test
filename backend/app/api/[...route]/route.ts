@@ -1,6 +1,10 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { handle } from 'hono/vercel';
+import usersRoute from './users-route';
+import leaderboardRoute from './leaderboard-route';
+import typingTestRoute from './typing-test-route';
+import statsRoute from './stats-route';
 
 export const runtime = 'edge';
 
@@ -28,13 +32,16 @@ app.use('*', async (c, next) => {
   }
 
   if (c.req.method === 'OPTIONS') {
-    return c.text('options method');
+    return c.text('');
   }
 
   await next();
 });
 
-app.get('/hello', (c) => c.json({ message: 'Hello from Hono!' }));
+app.route('/users', usersRoute);
+app.route('/leaderboard', leaderboardRoute);
+app.route('/typing-tests', typingTestRoute);
+app.route('/stats', statsRoute);
 
 export const GET = handle(app);
 export const POST = handle(app);
