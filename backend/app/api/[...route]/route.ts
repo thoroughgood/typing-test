@@ -13,7 +13,7 @@ const app = new Hono().basePath('/api/');
 app.use(
   '*',
   cors({
-    origin: 'https://typing-test-iota-two.vercel.app/',
+    origin: 'https://typing-test-iota-two.vercel.app',
     allowMethods: ['GET', 'POST', 'OPTIONS'],
     allowHeaders: ['Content-type', 'Authorization'],
     credentials: true,
