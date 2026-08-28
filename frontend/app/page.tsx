@@ -1,7 +1,13 @@
 'use client';
 import Image from 'next/image';
 import bg1 from '../public/dark-background-with-dynamic-shapes_23-2148865192.jpg';
-import { useEffect, useState, useRef, MouseEvent } from 'react';
+import {
+  useEffect,
+  useState,
+  useRef,
+  MouseEvent,
+  useCallback,
+} from 'react';
 import TypeList from '@/components/TypeList';
 import Stats from '@/components/Stats';
 import { useUser } from '@auth0/nextjs-auth0';
@@ -52,6 +58,9 @@ export default function Home() {
   console.log(dbUser);
   //User Sync Hook
   const { userSync } = useCurrentUser(user);
+  function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 
   useEffect(() => {
     const auth0UserId = user?.sub;
@@ -71,6 +80,7 @@ export default function Home() {
     async function sync() {
       try {
         const data = await userSync();
+        //let data go to database
         console.log('sync response', data);
 
         if (data?.needsUsername) {
@@ -96,6 +106,7 @@ export default function Home() {
 
     try {
       const data = await userSync(trimmedUsername);
+      await sleep(2000);
 
       if (data?.needsUsername) {
         setNeedsUsername(true);
