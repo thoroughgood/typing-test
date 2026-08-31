@@ -81,7 +81,7 @@ export default function Home() {
       try {
         const data = await userSync();
         //let data go to database
-        console.log('sync response', data);
+        console.log('SYNC RESPONSE BEFORE USERNAME CALL', data);
 
         if (data?.needsUsername) {
           setNeedsUsername(true);

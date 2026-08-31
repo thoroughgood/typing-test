@@ -1,3 +1,5 @@
+import { auth0 } from '@/lib/auth0';
+
 type Props = {
   params: Promise<{ id: string }>;
 };
@@ -9,10 +11,13 @@ interface testProps {
   createdAt: string;
 }
 
-export default async function ProtectedPage({ params }: Props) {
+export default async function Profile({ params }: Props) {
   const { id } = await params;
+  const session = await auth0.getSession();
+  const loggedUser = session?.user;
+  console.log(loggedUser);
 
-  const [testsRes, statsRes, user] = await Promise.all([
+  const [testsRes, statsRes, userPage] = await Promise.all([
     fetch(
       `${process.env.NEXT_PUBLIC_APP_BACKEND_URL}/api/users/${id}/typing-tests`,
     ),
@@ -27,9 +32,8 @@ export default async function ProtectedPage({ params }: Props) {
   const testResponse = await testsRes.json();
   const typingTests = testResponse.typingTests;
   const userStats = await statsRes.json();
-  const userProfile = await user.json();
+  const userProfile = await userPage.json();
   console.log(userProfile);
-
   return (
     <main className="min-h-screen w-full px-8 pb-20 pt-12">
       <div className="mx-auto flex max-w-7xl flex-col gap-10">
@@ -38,6 +42,11 @@ export default async function ProtectedPage({ params }: Props) {
           <div className="flex flex-col justify-center gap-6 sm:flex-row sm:items-end">
             <div>
               <p className="mb-2 font-bold font-[family-name:var(--font-geist-mono)] text-xl uppercase tracking-widest text-yellow-200">
+                {userProfile.sub == loggedUser?.auth0id ? (
+                  <>EDITABLE!</>
+                ) : (
+                  <></>
+                )}
                 {userProfile.username}&apos;s Profile
               </p>
             </div>
