@@ -20,28 +20,6 @@ async function createUser(userData: createUserData) {
   return res;
 }
 
-// small sleep helper
-function sleep(ms: number) {
-  return new Promise((res) => setTimeout(res, ms));
-}
-
-// Poll the DB for the new user until found or timeout
-async function waitForUserInDb(auth0Id: string, attempts = 5, delay = 200) {
-  for (let i = 0; i < attempts; i++) {
-    const user = await db
-      .select()
-      .from(Users)
-      .where(eq(Users.auth0Id, auth0Id))
-      .get();
-
-    if (user) return user;
-
-    await sleep(delay);
-  }
-
-  return null;
-}
-
 usersRoute.get('/', async (c) => {
   const users = await db.select().from(Users);
   return c.json(users);
